@@ -1,0 +1,65 @@
+<form id="new_record" method="post" action="">
+	<input type="hidden" name="_post_type" value="new_record">
+	<div class="input_container">
+		<section class="input_content">
+			<span class="input input--juro input--filled">
+				<input class="input__field input__field--juro" type="text" id="input-formname" name="recordname" value="New Record"/>
+				<label class="input__label input__label--juro" >
+					<span class="input__label-content input__label-content--juro">记录名称</span>
+				</label>
+			</span>
+			<span class="input"><label class="new_item"><span class="input__label-content">+添加</span></label></span>
+		</section>
+		<section class="input_content">
+			<span class="input input--juro input--filled">
+				<input class="input__field input__field--juro" type="text" id="input-name1" name="name1" value="用户名"/>
+				<label class="input__label input__label--juro" >
+					<span class="input__label-content input__label-content--juro">段名</span>
+				</label>
+			</span>
+			<span class="input input--juro">
+				<input class="input__field input__field--juro" type="text" id="input-value1" name="value1"/>
+				<label class="input__label input__label--juro" >
+					<span class="input__label-content input__label-content--juro">内容</span>
+				</label>
+			</span>
+			<span class="input"><input class="check_encrypt" name="encrypt1" type="checkbox" value="0" /></span>
+			<span class="input"><label class="new_item"><span class="input__label-content">+添加</span></label></span>
+		</section>
+
+		<section class="input_content">
+			<span class="input input--juro input--filled">
+				<input class="input__field input__field--juro" type="text" id="input-name2" name="name2" value="密码"/>
+				<label class="input__label input__label--juro" >
+					<span class="input__label-content input__label-content--juro">段名</span>
+				</label>
+			</span>
+			<span class="input input--juro ">
+				<input class="input__field input__field--juro" type="password" id="input-value2" name="value2"/>
+				<label class="input__label input__label--juro" >
+					<span class="input__label-content input__label-content--juro">内容</span>
+				</label>
+			</span>
+			<span class="input"><input class="check_encrypt" name="encrypt2" type="checkbox" value="1" checked="checked"/></span>
+			<span class="input"><label class="new_item"><span class="input__label-content">+添加</span></label></span>
+		</section>
+
+		<section class="input_content">
+			<span class="input input--juro input--filled">
+				<input class="input__field input__field--juro" type="text" id="input-name3" name="name3" value="URL"/>
+				<label class="input__label input__label--juro" >
+					<span class="input__label-content input__label-content--juro">段名</span>
+				</label>
+			</span>
+			<span class="input input--juro">
+				<input class="input__field input__field--juro" type="text" id="input-value3" name="value3"/>
+				<label class="input__label input__label--juro" >
+					<span class="input__label-content input__label-content--juro">内容</span>
+				</label>
+			</span>
+			<span class="input"><input class="check_encrypt" name="encrypt3" type="checkbox" value="0" /></span>
+			<span class="input"><label class="new_item"><span class="input__label-content">+添加</span></label></span>
+		</section>
+	</div>
+	<br><input type="button" onclick="FormSubmit()" value="新建" />
+</form>
