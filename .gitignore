@@ -1,5 +1,5 @@
-/.metadata/
-/session/
-/.settings/
-/certificates/
-
+.metadata/
+session/
+.settings/
+certificates/
+config.php

@@ -9,14 +9,13 @@
 <script src="js/jsbn/rng.js"></script>
 <script src="js/jsbn/rsa.js"></script>
 <script src="js/jsbn/rsa2.js"></script>
-<script src="js/crypto/rollups/md5.js.js"></script>
+<script src="js/crypto/rollups/md5.js"></script>
 <script>
 function FormSubmit()
 {
 	//根据用户信息生成AES密钥
 	var aes_key = CryptoJS.MD5(document.getElementById("username").value + document.getElementById("password").value + "3.141592653589793238462643383");
 	sessionStorage.setItem('aes_key', aes_key);
-	
 	var rsa = new RSAKey();
 	rsa.setPublic(document.getElementById('server_public_n').value, document.getElementById('server_public_e').value);
 	document.getElementById('password').value = rsa.encrypt(document.getElementById('password').value);
@@ -46,7 +45,7 @@ function PageLoad()
 
 <body onload="PageLoad()">
 <?php
-require_once("config.php");
+require_once("load.php");
 
 //输出公钥到浏览器
 echo '<input type="hidden" id="server_public_n" value="' . $_SESSION['publickey']['n']. '">';
@@ -57,7 +56,7 @@ if($_POST['username'])
 	echo $_POST['password'] . '<br>';
 	
 	$user_name = $_POST['username'];
-	$query = "select * from user_list where username = '$user_name'";
+	$query = "select * from idpass_users where username = '$user_name'";
 	$result = mysql_query($query);
 	$us = is_array($row = mysql_fetch_array($result));
 	
@@ -65,7 +64,7 @@ if($_POST['username'])
 	
 	$ps = $us ? hash('sha256', $_POST['password'] . $row['salt']) == $row['password'] : false;
 	if($ps){
-		$_SESSION['uid'] = $row['uid'];
+		$_SESSION['user_id'] = $row['id'];
 		$_SESSION['user_shell'] = hash('sha256', $row['username'].$row['password'].$row['salt']);
 		$_SESSION['times'] = mktime();  //登录的时间
 		//$_SESSION['salt'] = 

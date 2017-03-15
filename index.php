@@ -22,6 +22,9 @@ function FormSubmit()
 	var input_set = document.getElementsByTagName("input");
 
 	rsa.setPublic(document.getElementById('publickey_n').value, document.getElementById('publickey_e').value);
+
+	var key = CryptoJS.enc.Utf8.parse(sessionStorage.getItem('aes_key')); 
+	var iv  = CryptoJS.enc.Utf8.parse('1234567812345678'); 
 	
 	//遍历得到要提交的表单内容
 	for(var i = 0; i < input_set.length; i++)
@@ -32,7 +35,7 @@ function FormSubmit()
 			if(input_set[i].type == "password")
 			{
 				//对要加密存储的内容使用客户端根据用户信息生成的密钥进行AES加密
-				//input_set[i].value = rsa.encrypt(input_set[i].value);
+				input_set[i].value = CryptoJS.AES.encrypt(input_set[i].value, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.ZeroPadding });
 			}
 			input_set[i].value = rsa.encrypt(input_set[i].value);
 			
@@ -98,7 +101,16 @@ function FormSubmit()
 
 		//点击复制文字时
 		$(".cpbtn").on("click", function(){
-			window._clipboard_text = $(this).attr("data-clipboard-text");
+			if($(this).attr("encrypted") == "1")
+			{
+				var key = CryptoJS.enc.Utf8.parse(sessionStorage.getItem('aes_key')); 
+				var iv  = CryptoJS.enc.Utf8.parse('1234567812345678'); 
+				window._clipboard_text = CryptoJS.AES.decrypt($(this).attr("data-clipboard-text").toString(), key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.ZeroPadding }).toString(CryptoJS.enc.Utf8);
+			}
+			else
+			{
+				window._clipboard_text = $(this).attr("data-clipboard-text");
+			}
 			$("#cpbtn").click();
 		});
 
@@ -115,8 +127,8 @@ function FormSubmit()
 <body>
 
 <?php
-require_once("config.php");
-$arr = user_shell($_SESSION['uid'] , $_SESSION['user_shell'], 4);
+require_once("load.php");
+$arr = user_shell($_SESSION['user_id'] , $_SESSION['user_shell']);
 user_mktime($_SESSION['times']);
 ?>
 
@@ -187,7 +199,7 @@ if($_POST['_post_type'] == "new_record")
 	}
 	//把表单内容存入数据库中;
 	//查询表单是否已存在
-	$query = sprintf("select * from info_%s where record = '%s'", $arr['username'], $form_data['recordname']);
+	$query = sprintf("select * from idpass_secret where user_id = %d and record = '%s'", $_SESSION['user_id'], $form_data['recordname']);
 	$result = mysql_query($query);
 	$row = mysql_fetch_array($result);
 	if(is_array($row))
@@ -204,23 +216,14 @@ if($_POST['_post_type'] == "new_record")
 				$_name = $form_data["name".$matches[1]];
 				$_value = $form_data["value".$matches[1]];
 				$_encrypt = $form_data["encrypt".$matches[1]];
-				if($_encrypt == 1)
-				{
-					//需要根据用户shell加密数据再存储
-					//$_value = aes_encrypt($_value, $_SESSION['user_shell'], ' ');
-				}
-				$query = sprintf("insert into info_%s(record, name, value, encrypt) values('%s', '%s', '%s', %d)",
-									$arr['username'], $form_data['recordname'], $_name, $_value, $_encrypt);
+				$query = sprintf("insert into idpass_secret(user_id, record, name, value, encrypt) values(%d, '%s', '%s', '%s', %d)",
+									$_SESSION['user_id'], $form_data['recordname'], $_name, $_value, $_encrypt);
 				$result = mysql_query($query);
 				$row = mysql_fetch_array($result);
 				if($result == true)
 				{
 					echo "记录成功<br>";
 				}
-// 				else
-// 				{
-// 					echo $query.'<br>';
-// 				}
 				echo $query.'<br>';
 			}
 		}
@@ -235,7 +238,7 @@ else if($_GET['type'] == "new")
 elseif($_GET['type'] == "show")
 {
 	//显示所有记录
-	$query = sprintf("select distinct record from info_%s", $arr['username']);
+	$query = sprintf("select distinct record from idpass_secret where user_id = %d", $_SESSION['user_id']);
 	$result = mysql_query($query);
 	$row = mysql_fetch_array($result);
 	if(is_array($row))
@@ -258,7 +261,7 @@ elseif($_GET['type'] == "show")
 elseif($_GET['type'] == "showrecord")
 {
 	echo '<h2>' . urldecode($_GET['name']) .'</h2>';
-	$query = sprintf("select name, value from info_%s where record = '%s'", $arr['username'], urldecode($_GET['name']));
+	$query = sprintf("select name, value, encrypt from idpass_secret where user_id = %d and record = '%s'", $_SESSION['user_id'], urldecode($_GET['name']));
 	$result = mysql_query($query);
 	$row = mysql_fetch_array($result);
 	if(is_array($row))
@@ -266,7 +269,7 @@ elseif($_GET['type'] == "showrecord")
 		echo '<ul>';
 		do
 		{
-			$output = sprintf('<li><label>%s %s</label><button class="cpbtn btn" data-clipboard-text="%s"><img src="assets/images/clippy.svg" width="13"></button></li>', $row[0], $row[1], $row[1]);
+			$output = sprintf('<li><label>%s %s</label><button class="cpbtn btn" data-clipboard-text="%s" encrypted="%d"><img src="assets/images/clippy.svg" width="13"></button></li>', $row[0], $row[1], $row[1], $row[2]);
 			echo $output;
 		} while($row = mysql_fetch_array($result));
 		echo '</ul>';
@@ -274,7 +277,7 @@ elseif($_GET['type'] == "showrecord")
 }
 elseif($_GET['type'] == "deleterecord")
 {
-	$query = sprintf("delete from info_%s where record = '%s'", $arr['username'], urldecode($_GET['name']));
+	$query = sprintf("delete from idpass_secret where user_id = %d and record = '%s'", $_SESSION['user_id'], urldecode($_GET['name']));
 	mysql_query($query);
 	echo '<script>self.location="?type=show";</script>';
 	exit;
@@ -289,7 +292,7 @@ elseif($_GET['type'] == "deleterecord")
 		</div>
 		<div class="clear"></div>
 	</div>
-	<div id="footer"><h3>Copyright © 2017 Soe</h3><h3><a href="http://www.miitbeian.gov.cn/">鄂ICP备17003963</a></h3></h3></div>
+	<div id="footer"><h3>Copyright © 2017 Soe</h3><h3><a href="http://www.miitbeian.gov.cn/">鄂ICP备17003963</a></h3></div>
 	
 	<!-- 辅助复制到粘贴板 -->
 	<button id="cpbtn" hidden></button>

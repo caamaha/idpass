@@ -22,7 +22,7 @@ $cipher->setIV($iv);
 
 echo base64_encode($cipher->encrypt($text)) .'<br>';
 // echo $cipher->decrypt($cipher->encrypt($plaintext));
-echo $cipher->decrypt(base64_decode('RJ2XtsHfnWs/79MGnVcEWg==')). '<br>';
+// echo $cipher->decrypt(base64_decode('RJ2XtsHfnWs/79MGnVcEWg==')). '<br>';
 
 // $crypttext = mcrypt_encrypt(MCRYPT_RIJNDAEL_128, $key, $text, MCRYPT_MODE_CBC, $iv);
 // $decode = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $key, $crypttext, MCRYPT_MODE_CBC, $iv);
@@ -42,6 +42,7 @@ var key_hash = CryptoJS.MD5("Message");
 var key = CryptoJS.enc.Utf8.parse(key_hash); 
 var iv  = CryptoJS.enc.Utf8.parse('1234567812345678'); 
 var encrypted = CryptoJS.AES.encrypt("Message", key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.ZeroPadding }); 
-document.write(encrypted); 
+var decrypted = CryptoJS.AES.decrypt(encrypted.toString(), key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.ZeroPadding });
+document.write(decrypted.toString(CryptoJS.enc.Utf8)); 
 
 </script>

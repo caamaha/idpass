@@ -21,7 +21,7 @@ function FormSubmit()
 <body>
 
 <?php
-require_once("config.php");
+require_once("load.php");
 
 //输出公钥到浏览器
 echo '<input type="hidden" id="publickey_e" value="' . $_SESSION['publickey']['e']. '">';
@@ -37,7 +37,7 @@ if($_POST['username'])
 	echo $password . "<br>";
 	
 	//查询用户是否已存在
-	$query = "select * from user_list where username = '$user_name'";
+	$query = "select * from idpass_users where username = '$user_name'";
 	$result = mysql_query($query);
 	$row = mysql_fetch_array($result);
 	if(is_array($row))
@@ -46,39 +46,16 @@ if($_POST['username'])
 	}
 	else
 	{
-		$query = "insert into user_list(uid, username, password, salt) values(null, '$user_name', '$password', '$salt')";
+		$query = "insert into idpass_users(id, username, password, salt) values(null, '$user_name', '$password', '$salt')";
 		$result = mysql_query($query);
 		
 		//获得受影响的行数
 		$row = mysql_affected_rows($conn);
 		if($row > 0)
 		{
-			//为新用户新建一个信息table
-			$query = "create table info_$user_name (id INT NOT NULL AUTO_INCREMENT,
-						record VARCHAR(255),
-						name VARCHAR(255),
-						value VARCHAR(65535),
-						encrypt BOOLEAN,
-						PRIMARY KEY(id))";
-			$result = mysql_query($query);
-			if($result == true)
-			{
-				//注册成功后自动登陆
-				$result = mysql_query("select uid from user_list where username = '$user_name'");
-				$row = mysql_fetch_array($result);
-				
-				$_SESSION['uid'] = $row['uid'];
-				$_SESSION['user_shell'] = hash('sha256', $user_name . $password . $salt);
-				$_SESSION['times'] = mktime();  //登录的时间
-				echo "注册成功<br>";
-				echo '<meta http-equiv="refresh" content="1;URL=index.php">';
-			}
-			else
-			{
-				$query = "delete from user_list where username = '$user_name'";
-				mysql_query($query);
-				echo "注册失败，用户名非法<br>";
-			}
+			//注册成功后转向登陆页面
+			echo "注册成功<br>";
+			echo '<meta http-equiv="refresh" content="1;URL=login.php">';
 		}
 		else
 		{
