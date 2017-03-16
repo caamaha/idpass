@@ -13,7 +13,6 @@
 <script src="js/jsbn/rng.js"></script>
 <script src="js/jsbn/rsa.js"></script>
 <script src="js/crypto/rollups/aes.js"></script>
-<script src="js/crypto/components/pad-zeropadding.js"></script>
 <script>
 //提交表单时加密内容
 function FormSubmit()
@@ -35,10 +34,9 @@ function FormSubmit()
 			if(input_set[i].type == "password")
 			{
 				//对要加密存储的内容使用客户端根据用户信息生成的密钥进行AES加密
-				input_set[i].value = CryptoJS.AES.encrypt(input_set[i].value, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.ZeroPadding });
+				input_set[i].value = CryptoJS.AES.encrypt(input_set[i].value, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
 			}
 			input_set[i].value = rsa.encrypt(input_set[i].value);
-			
 			input_set[i].style.display="none";
 		}
 	}
@@ -105,7 +103,7 @@ function FormSubmit()
 			{
 				var key = CryptoJS.enc.Utf8.parse(sessionStorage.getItem('aes_key')); 
 				var iv  = CryptoJS.enc.Utf8.parse('1234567812345678'); 
-				window._clipboard_text = CryptoJS.AES.decrypt($(this).attr("data-clipboard-text").toString(), key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.ZeroPadding }).toString(CryptoJS.enc.Utf8);
+				window._clipboard_text = CryptoJS.AES.decrypt($(this).attr("data-clipboard-text").toString(), key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8);
 			}
 			else
 			{
@@ -141,7 +139,7 @@ user_mktime($_SESSION['times']);
 		<ul>
 			<li class="first"><a href="index.php" accesskey="1" title="">IDPass</a></li>
 			<li><a href="index.php" accesskey="2" title="">Import</a></li>
-			<li><a href="index.php" accesskey="3" title="">Export</a></li>
+			<li><a href="index.php?type=export" accesskey="3" title="">Export</a></li>
 			<li><a href="index.php" accesskey="4" title="">Search</a></li>
 			<li><a href="index.php" accesskey="5" title="">About Us</a></li>
 		</ul>
@@ -281,6 +279,13 @@ elseif($_GET['type'] == "deleterecord")
 	mysql_query($query);
 	echo '<script>self.location="?type=show";</script>';
 	exit;
+}
+else if($_GET['type'] == "export")
+{
+	//导出数据
+	echo '<h2>请下载下面的组件并解压缩，把导出的html文件放置在解压缩后的文件夹内，然后打开html文件查看。</h2>';
+	echo '<h2><a href="http://o7sk7ggui.bkt.clouddn.com/idpass/export%20components.rar" download>export components.rar</a></h2>';
+	echo '<h2><a href="export.php" target="_blank">请点此导出数据html</a></h2>';
 }
 ?>
 

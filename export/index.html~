@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <META HTTP-EQUIV="pragma" CONTENT="no-cache">
-  <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache, must-revalidate">
-  <META HTTP-EQUIV="expires" CONTENT="Wed, 26 Feb 1997 08:21:57 GMT">
-  <META HTTP-EQUIV="expires" CONTENT="0">
-  <title>Secret Records</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="css/style.css" media="screen" type="text/css" />
+	<meta charset="UTF-8">
+	<title>Secret Records</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="css/style.css" media="screen" type="text/css" />
 </head>
 <body>
-<div style="text-align:center;clear:both">
-</div>
+
+	<div>
+	<form id="slick-login">
+		<label for="username">username</label><input type="text" name="username" class="placeholder" placeholder="user name">
+		<label for="password">password</label><input type="password" name="password" class="placeholder" placeholder="password">
+		<input type="button" value="Decrypt">
+	</form>
+	</div>
+
+	<div>
 	<ul id="accordion" class="accordion">
 		<li>
 			<div class="link">Record 1</div>
@@ -62,7 +66,8 @@
 			</ul>
 		</li>
 	</ul>
-  <script src="js/jquery-1.8.0.js"></script>
-  <script src="js/index.js"></script>
+	</div>
+	<script src="js/jquery-1.8.0.js"></script>
+	<script src="js/index.js"></script>
 </body>
 </html>

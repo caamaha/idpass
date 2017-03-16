@@ -168,7 +168,6 @@ table {
 	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #F2F2F2 100%);
 	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #F2F2F2 100%);
 	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #F2F2F2 100%);
-	background-image: linear-gradient(bottom, #FFFFFF 0%, #F2F2F2 100%);
 
 	-webkit-box-shadow: inset 0px 2px 0px #d9d9d9;
 	box-shadow: inset 0px 2px 0px #d9d9d9;
