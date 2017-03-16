@@ -284,7 +284,7 @@ else if($_GET['type'] == "export")
 {
 	//导出数据
 	echo '<h2>请下载下面的组件并解压缩，把导出的html文件放置在解压缩后的文件夹内，然后打开html文件查看。</h2>';
-	echo '<h2><a href="http://o7sk7ggui.bkt.clouddn.com/idpass/export%20components.rar" download>export components.rar</a></h2>';
+	echo '<h2><a href="http://o7sk7ggui.bkt.clouddn.com/idpass/export_components.rar?attname=" download>export components.rar</a></h2>';
 	echo '<h2><a href="export.php" target="_blank">请点此导出数据html</a></h2>';
 }
 ?>

@@ -50,6 +50,7 @@ function ExportSecret($user_id)
 <script src="js/index.js"></script>
 <script src="js/md5.js"></script>
 <script src="js/aes.js"></script>
+<script src="js/clipboard.min.js"></script>
 <script>
 function DecryptRecords()
 {
@@ -66,6 +67,7 @@ function DecryptRecords()
 			val_set[i].innerHTML = CryptoJS.AES.decrypt(val_set[i].innerHTML.toString(), key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8);;
 		}
 		val_set[i].setAttribute('encrypted', '0');
+		val_set[i].setAttribute('data-clipboard-text', val_set[i].innerHTML.toString());
 	}
 }
 $(document).ready(function(){
@@ -96,7 +98,7 @@ STR;
 		for($i = 1; $i <= $lines; $i++)
 		{
 			$txt .= '<tr>';
-			$txt .= sprintf('<td width="200 px"><a href="#">%s</a></td><td><a href="#" encrypted="%d">%s</a></td>', $record[$i*3-2], $record[$i*3], $record[$i*3-1]);
+			$txt .= sprintf('<td width="200 px"><a href="" onclick="return false;">%s</a></td><td><a href="" encrypted="%d" onclick="return false;">%s</a></td>', $record[$i*3-2], $record[$i*3], $record[$i*3-1]);
 			$txt .= '</tr>';
 		}
 		$txt .= '</table></ul></li>';
@@ -104,6 +106,10 @@ STR;
 	$txt .= <<<STR
 </ul>
 	</div>
+<script>
+	var btns = document.querySelectorAll('a');
+	var clipboard = new Clipboard(btns);
+</script>
 </body>
 </html>
 STR;
