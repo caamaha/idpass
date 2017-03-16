@@ -3,8 +3,14 @@
 <head>
 <meta charset="utf-8">
 <title>IDPass</title>
-<link rel="stylesheet" type="text/css" href="css/layout.css"/>
-<link rel="stylesheet" type="text/css" href="css/input_field.css" />
+<meta http-equiv="X-UA-Compatible" content="IE=8">
+<meta http-equiv="Expires" content="0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-control" content="no-cache">
+<meta http-equiv="Cache" content="no-cache">
+<!-- <link rel="stylesheet" type="text/css" href="css/input_field.css" /> -->
+
+<link rel="stylesheet" type="text/css" href="css/index.css" />
 <script src="js/jquery-1.8.0.js"></script>
 <script src="js/string_format.js"></script>
 <script src="js/clipboard.min.js"></script>
@@ -122,7 +128,7 @@ function FormSubmit()
 </head>
 
 
-<body>
+<body class="home blog">
 
 <?php
 require_once("load.php");
@@ -131,22 +137,40 @@ user_mktime($_SESSION['times']);
 ?>
 
 
-<div id="outer">
-	<div id="header"><h1>欢迎
-	<?php echo $arr['username'];?>
-	</h1></div>
-	<div id="menu">
-		<ul>
-			<li class="first"><a href="index.php" accesskey="1" title="">IDPass</a></li>
-			<li><a href="index.php" accesskey="2" title="">Import</a></li>
-			<li><a href="index.php?type=export" accesskey="3" title="">Export</a></li>
-			<li><a href="index.php" accesskey="4" title="">Search</a></li>
-			<li><a href="index.php" accesskey="5" title="">About Us</a></li>
-		</ul>
+<header class="header" style="min-height: 611px">
+	<div id="logo"><div class="header-logo-wrap">
+		<h1 class="site-title"><a href="index.php" title="IDPass" rel="home">IDPass</a></h1>
+		<h2 class="site-description">欢迎<?php echo $arr['username'];?></h2>
+	</div></div>
+	<div class="left-sidebar sidebar-desktop">
+	<aside><h3 class="widget-title">操作</h3><ul>
+		<li><a href="?type=new">新建记录</a></li>
+		<li><a href="?type=show">记录列表</a></li>
+	</ul></aside></div>
+</header>
+	
+
+	<div id="topside">
+		<div class="pages">
+			<div class="menu-menu-1-container">
+			<ul id="menu-menu-1" class="menu"><li id="menu-item-29" class="menu-item menu-item-type-custom menu-item-object-custom current-menu-item menu-item-29"><a href="index.php">首页</a></li>
+				<li id="menu-item-41" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-41"><a href="index.php?type=export">导出</a></li>
+				<li id="menu-item-42" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-42"><a href="login.php">登陆</a></li>
+				<li id="menu-item-28" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-28"><a href="index.php">关于</a></li>
+			</ul></div></div> <!--/menu-->
+
+		<div id="searchform">
+			<form role="search" method="get" action="">
+				<input type="text" class="searchtext" value="" name="s" title="搜索：">
+				<input type="submit" class="searchbutton" value=" ">
+			</form>
+		</div> <!--/searchform-->
+		<div class="clearfix"></div>
 	</div>
-	<div id="content">
-		<div id="side_right_container">
-			<div id="side_right">
+	
+
+	<div id="content" style="min-height:917px">
+		<div class="post">
 <?php
 //输出公钥到浏览器
 echo '<input type="hidden" id="publickey_e" value="' . $_SESSION['publickey']['e']. '">';
@@ -289,19 +313,20 @@ else if($_GET['type'] == "export")
 }
 ?>
 
-			</div>
+
 		</div>
-		<div id="side_left">
-		<h2><a href="?type=new">新建记录</a></h2>
-		<h2><a href="?type=show">记录列表</a></h2>
-		</div>
-		<div class="clear"></div>
+		<div class="clearfix"></div>
 	</div>
-	<div id="footer"><h3>Copyright © 2017 Soe</h3><h3><a href="http://www.miitbeian.gov.cn/">鄂ICP备17003963</a></h3></div>
+
+	<footer>
+	<span class="alignleft">Copyright © 2017 Soe</span><br\>
+	<span class="alignright"><a href="http://www.miitbeian.gov.cn/" rel="external nofollow" target="_blank">鄂ICP备17003963号</a></span>
+	<br>
+	</footer>
 	
 	<!-- 辅助复制到粘贴板 -->
 	<button id="cpbtn" hidden></button>
-</div>
+
 
 <script>
 //支持复制到粘贴板

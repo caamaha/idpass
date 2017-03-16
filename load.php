@@ -41,7 +41,6 @@ session_start();
 
 if(empty($_SESSION['privatekey']))
 {
-	echo 'Generating RSA Key pair<br>';
 	//生成一对RSA钥匙
 	define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
 	$rsa = new Crypt_RSA();
