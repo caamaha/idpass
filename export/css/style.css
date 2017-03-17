@@ -85,12 +85,6 @@ h1 a {
 	transition: all 0.4s ease;
 }
 
-.accordion li i.fa-chevron-down {
-	right: 12px;
-	left: auto;
-	font-size: 16px;
-}
-
 .accordion li.open .link {
 	color: #b63b4d;
 }
@@ -98,11 +92,9 @@ h1 a {
 .accordion li.open i {
 	color: #b63b4d;
 }
-.accordion li.open i.fa-chevron-down {
-	-webkit-transform: rotate(180deg);
-	-ms-transform: rotate(180deg);
-	-o-transform: rotate(180deg);
-	transform: rotate(180deg);
+
+li:hover > .submenu{
+	display: block;
 }
 
 /** ==========================
