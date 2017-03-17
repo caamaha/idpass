@@ -2,9 +2,15 @@
 
 require_once('load.php');
 
+function CheckInput($value)
+{
+	$value = htmlentities(mysql_real_escape_string($value), ENT_QUOTES);
+	return $value;
+}
+
 function ParseFormData($post, $rsa)
 {
-	$form_data['recordname'] = rsa_decrypt($rsa, $post['recordname']);
+	$form_data['recordname'] = CheckInput(rsa_decrypt($rsa, $post['recordname']));
 	
 	foreach($post as $name => $value)
 	{
@@ -18,8 +24,9 @@ function ParseFormData($post, $rsa)
 				{
 					continue;
 				}
-				$_name  = rsa_decrypt($rsa, $post["name" .$matches[1]]);
-				$_value = rsa_decrypt($rsa, $post["value".$matches[1]]);
+				$_name  = CheckInput(rsa_decrypt($rsa, $post["name" .$matches[1]]));
+				$_value = CheckInput(rsa_decrypt($rsa, $post["value".$matches[1]]));
+				
 				if(strlen($_name) == 0 || strlen($_value) == 0)
 				{
 					continue;
@@ -51,7 +58,7 @@ function ParseFormData($post, $rsa)
 
 function EditRecord($user_id, $record_name)
 {
-	$query = sprintf("select name, value, encrypt from idpass_secret where user_id = %d and record = '%s'", $_SESSION['user_id'], urldecode($_GET['name']));
+	$query = sprintf("select name, value, encrypt from idpass_secret where user_id = %d and record = '%s'", $_SESSION['user_id'], CheckInput($record_name));
 	$result = mysql_query($query);
 	$row = mysql_fetch_array($result);
 	if(is_array($row))

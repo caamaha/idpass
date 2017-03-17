@@ -1,4 +1,7 @@
 <?php
+namespace PHPArchive;
+
+require_once("php-archive/src/Zip.php");
 require_once("load.php");
 require_once("show.php");
 
@@ -18,12 +21,30 @@ function ExportSecret($user_id)
 <meta charset="UTF-8">
 <title>Secret Records</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="css/style.css" media="screen" type="text/css" />
-<script src="js/jquery-1.8.0.js"></script>
-<script src="js/index.js"></script>
-<script src="js/md5.js"></script>
-<script src="js/aes.js"></script>
-<script src="js/clipboard.min.js"></script>
+<style type="text/css">
+STR;
+	$fid = fopen("export/css/style.min.css", "r");
+	$txt .= fread($fid, filesize("export/css/style.min.css"));
+	fclose($fid);
+	$txt .= <<<STR
+</style>
+<script>
+STR;
+	
+	$fid = fopen("export/js/md5.js", "r");
+	$txt .= fread($fid, filesize("export/js/md5.js"));
+	fclose($fid);
+	
+	$fid = fopen("export/js/aes.js", "r");
+	$txt .= fread($fid, filesize("export/js/aes.js"));
+	fclose($fid);
+	
+	$fid = fopen("export/js/clipboard.min.js", "r");
+	$txt .= fread($fid, filesize("export/js/clipboard.min.js"));
+	fclose($fid);
+	
+	$txt .= <<<STR
+</script>
 <script>
 function DecryptRecords()
 {
@@ -88,12 +109,22 @@ STR;
 	$row = mysql_fetch_array($result);
 	$user_name = $row['username'];
 	$filename = 'idpass_' . $user_name . '.html';
+	
+	
+	//压缩文件
+	$tar = new Zip();
+	$tar->setCompression(9, Archive::COMPRESS_GZIP);
+	$tar->create();
+	$tar->addData($filename, $txt);
+	$tar->close();
+	
+	$filename = 'idpass_' . $user_name . '.zip';
 	$encoded_filename = urlencode($filename);
 	$encoded_filename = str_replace("+", "%20", $encoded_filename);
 	
 	header("Content-Type: application/octet-stream");
 	Header("Accept-Ranges: bytes");
-	Header("Accept-Length:" . strlen($txt));
+	Header("Accept-Length:" . strlen($tar));
 	if (preg_match("/MSIE/", $_SERVER['HTTP_USER_AGENT']) ) {
 		header('Content-Disposition:  attachment; filename="' . $encoded_filename . '"');
 	} elseif (preg_match("/Firefox/", $_SERVER['HTTP_USER_AGENT'])) {
@@ -102,9 +133,7 @@ STR;
 		header('Content-Disposition: attachment; filename="' .  $filename . '"');
 	}
 	
-	echo $txt;
-	
-	exit();
+	echo $tar->getArchive();
 }
 
 ExportSecret($_SESSION['user_id']);

@@ -1,6 +1,9 @@
 <?php
 
-namespace splitbrain\PHPArchive;
+namespace PHPArchive;
+
+require_once 'php-archive/src/Archive.php';
+require_once 'php-archive/src/FileInfo.php';
 
 /**
  * Class Zip
