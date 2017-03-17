@@ -66,14 +66,20 @@ require_once("load.php");
 echo '<input type="hidden" id="server_public_n" value="' . $_SESSION['publickey']['n']. '">';
 echo '<input type="hidden" id="server_public_e" value="' . $_SESSION['publickey']['e']. '">';
 
-if($_POST['type'] == 'login')
-{	
+function Login($rsa)
+{
 	$user_name = $_POST['username'];
 	$query = "select * from idpass_users where username = '$user_name'";
 	$result = mysql_query($query);
 	$us = is_array($row = mysql_fetch_array($result));
 	
 	$_POST['password'] = rsa_decrypt($rsa, $_POST['password']);
+	
+	if($_POST['password'] == false)
+	{
+		echo "<h1>数据校验失败<h1><br>";
+		return;
+	}
 	
 	$ps = $us ? hash('sha256', $_POST['password'] . $row['salt']) == $row['password'] : false;
 	if($ps){
@@ -87,10 +93,21 @@ if($_POST['type'] == 'login')
 		session_destroy();
 	}
 }
-elseif($_POST['type'] == 'register')
+
+function Register($rsa)
 {
 	$user_name = str_replace(" ", "", $_POST['username']);
+	if($user_name == '')
+	{
+		echo "<h1>用户名不能为空<h1><br>";
+		return;
+	}
 	$_POST['password'] = rsa_decrypt($rsa, $_POST['password']);
+	if($_POST['password'] == false)
+	{
+		echo "<h1>数据校验失败<h1><br>";
+		return;
+	}
 	$salt = bin2hex(random_bytes(4));
 	$password = hash('sha256', $_POST['password'] . $salt);
 	
@@ -106,10 +123,8 @@ elseif($_POST['type'] == 'register')
 	{
 		$query = "insert into idpass_users(id, username, password, salt) values(null, '$user_name', '$password', '$salt')";
 		$result = mysql_query($query);
-	
-		//获得受影响的行数
-		$row = mysql_affected_rows($conn);
-		if($row > 0)
+		
+		if($result)
 		{
 			$query = "select * from idpass_users where username = '$user_name'";
 			$result = mysql_query($query);
@@ -117,7 +132,7 @@ elseif($_POST['type'] == 'register')
 			$_SESSION['user_id'] = $row['id'];
 			$_SESSION['user_shell'] = hash('sha256', $row['username'].$row['password'].$row['salt']);
 			$_SESSION['times'] = mktime();  //登录的时间
-			
+				
 			//注册成功后转向主页
 			echo "<h1>注册成功<h1>";
 			echo '<meta http-equiv="refresh" content="1;URL=index.php">';
@@ -129,6 +144,15 @@ elseif($_POST['type'] == 'register')
 	}
 }
 
+if($_POST['type'] == 'login')
+{	
+	Login($rsa);
+}
+elseif($_POST['type'] == 'register')
+{
+	Register($rsa);
+}
+
 
 
 ?>
@@ -137,8 +161,8 @@ elseif($_POST['type'] == 'register')
 		<input type="hidden" id="client_public_n" name="client_public_n" value="">
 		<input type="hidden" id="client_public_e" name="client_public_e" value="">
 		<input type="hidden" id="type" name="type" value="">
-		<input type="text" id="username" name="username" class="placeholder" placeholder="用户名"/><br>
-		<input type="password" id="password" name="password" class="placeholder" placeholder="密　码"/><br>
+		<input type="text" id="username" name="username" class="placeholder" placeholder="用户名" autocomplete="off"/><input style="display:none">
+		<input type="password" id="password" name="password" class="placeholder" placeholder="密　码" autocomplete="off"/>
 		<input type="button" onclick="FormSubmit(1)" value="登录" /><br>
 		<input type="button" onclick="FormSubmit(2)" value="注册" /><br>
 	</form>

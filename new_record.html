@@ -1,65 +1,40 @@
-<form id="new_record" method="post" action="">
+<form id="new_record" class="slick-form" method="post" action="">
 	<input type="hidden" name="_post_type" value="new_record">
-	<div class="input_container">
-		<section class="input_content">
-			<span class="input input--juro input--filled">
-				<input class="input__field input__field--juro" type="text" id="input-formname" name="recordname" value="New Record"/>
-				<label class="input__label input__label--juro" >
-					<span class="input__label-content input__label-content--juro">记录名称</span>
-				</label>
-			</span>
-			<span class="input"><label class="new_item"><span class="input__label-content">+添加</span></label></span>
-		</section>
-		<section class="input_content">
-			<span class="input input--juro input--filled">
-				<input class="input__field input__field--juro" type="text" id="input-name1" name="name1" value="用户名"/>
-				<label class="input__label input__label--juro" >
-					<span class="input__label-content input__label-content--juro">段名</span>
-				</label>
-			</span>
-			<span class="input input--juro">
-				<input class="input__field input__field--juro" type="text" id="input-value1" name="value1"/>
-				<label class="input__label input__label--juro" >
-					<span class="input__label-content input__label-content--juro">内容</span>
-				</label>
-			</span>
-			<span class="input"><input class="check_encrypt" name="encrypt1" type="checkbox" value="0" /></span>
-			<span class="input"><label class="new_item"><span class="input__label-content">+添加</span></label></span>
-		</section>
-
-		<section class="input_content">
-			<span class="input input--juro input--filled">
-				<input class="input__field input__field--juro" type="text" id="input-name2" name="name2" value="密码"/>
-				<label class="input__label input__label--juro" >
-					<span class="input__label-content input__label-content--juro">段名</span>
-				</label>
-			</span>
-			<span class="input input--juro ">
-				<input class="input__field input__field--juro" type="password" id="input-value2" name="value2"/>
-				<label class="input__label input__label--juro" >
-					<span class="input__label-content input__label-content--juro">内容</span>
-				</label>
-			</span>
-			<span class="input"><input class="check_encrypt" name="encrypt2" type="checkbox" value="1" checked="checked"/></span>
-			<span class="input"><label class="new_item"><span class="input__label-content">+添加</span></label></span>
-		</section>
-
-		<section class="input_content">
-			<span class="input input--juro input--filled">
-				<input class="input__field input__field--juro" type="text" id="input-name3" name="name3" value="URL"/>
-				<label class="input__label input__label--juro" >
-					<span class="input__label-content input__label-content--juro">段名</span>
-				</label>
-			</span>
-			<span class="input input--juro">
-				<input class="input__field input__field--juro" type="text" id="input-value3" name="value3"/>
-				<label class="input__label input__label--juro" >
-					<span class="input__label-content input__label-content--juro">内容</span>
-				</label>
-			</span>
-			<span class="input"><input class="check_encrypt" name="encrypt3" type="checkbox" value="0" /></span>
-			<span class="input"><label class="new_item"><span class="input__label-content">+添加</span></label></span>
-		</section>
+	<div class="input-fields">
+		<label>username</label><input type="text" id="input-formname" name="recordname" class="placeholder" placeholder="表名" autocomplete="off">
+        <a href="####" class="plus-button">+</a>
 	</div>
-	<br><input type="button" onclick="FormSubmit()" value="新建" />
+	<div class="input-fields">
+		<input type="text" id="input-name1" name="name1" class="placeholder" placeholder="段名" autocomplete="off" value="账号">
+		<input style="display:none">
+		<input type="text" id="input-value1" name="value1" class="placeholder" placeholder="内容" autocomplete="off">
+		<div class="checkbox-holder">
+			<input type="checkbox" id="checkbox-encrypt1" name="encrypt1"><label for="checkbox-encrypt1"></label>
+		</div>
+        <a href="####" class="plus-button">+</a>
+	</div>
+
+
+	<div class="input-fields">
+		<input type="text" id="input-name2" name="name2" class="placeholder" placeholder="段名" autocomplete="off" value="密码">
+		<input style="display:none">
+		<input type="password" id="input-value2" name="value2" class="placeholder" placeholder="内容" autocomplete="off">
+		<div class="checkbox-holder">
+			<input type="checkbox" checked=1 id="checkbox-encrypt2" name="encrypt2" value="1"><label for="checkbox-encrypt2"></label>
+		</div>
+        <a href="####" class="plus-button">+</a>
+	</div>
+
+
+	<div class="input-fields">
+		<input type="text" id="input-name3" name="name3" class="placeholder" placeholder="段名" autocomplete="off" value="URL">
+		<input style="display:none">
+		<input type="text" id="input-value3" name="value3" class="placeholder" placeholder="内容" autocomplete="off">
+		<div class="checkbox-holder">
+			<input type="checkbox" id="checkbox-encrypt3" name="encrypt3"><label for="checkbox-encrypt3"></label>
+		</div>
+        <a href="####" class="plus-button">+</a>
+	</div>
+
+	<br><input type="button" onclick="FormSubmit()" value="新建"/>
 </form>

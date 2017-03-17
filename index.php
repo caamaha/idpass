@@ -8,9 +8,10 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Cache-control" content="no-cache">
 <meta http-equiv="Cache" content="no-cache">
-<!-- <link rel="stylesheet" type="text/css" href="css/input_field.css" /> -->
 
 <link rel="stylesheet" type="text/css" href="css/index.css" />
+<link rel="stylesheet" type="text/css" href="css/input-field.css" />
+
 <script src="js/jquery-1.8.0.js"></script>
 <script src="js/string_format.js"></script>
 <script src="js/clipboard.min.js"></script>
@@ -30,6 +31,8 @@ function FormSubmit()
 
 	var key = CryptoJS.enc.Utf8.parse(sessionStorage.getItem('aes_key')); 
 	var iv  = CryptoJS.enc.Utf8.parse('1234567812345678'); 
+
+	document.getElementById('new_record').style.display="none";
 	
 	//遍历得到要提交的表单内容
 	for(var i = 0; i < input_set.length; i++)
@@ -43,10 +46,8 @@ function FormSubmit()
 				input_set[i].value = CryptoJS.AES.encrypt(input_set[i].value, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
 			}
 			input_set[i].value = rsa.encrypt(input_set[i].value);
-			input_set[i].style.display="none";
 		}
 	}
-
 	document.getElementById('new_record').submit();
 }
 </script>
@@ -54,36 +55,15 @@ function FormSubmit()
 	var form_items = 4;
 	$(document).ready(function(){
 		//在新建表单时动态增加或减少表单项
-		$("#new_record").on("click", ".new_item", function(){
-			var new_item = '<section class="input_content input_session_new">\
-								<span class="input input--juro">\
-									<input class="input__field input__field--juro" type="text" id="input-name{0}" name="name{1}"/>\
-									<label class="input__label input__label--juro" >\
-										<span class="input__label-content input__label-content--juro">段名</span>\
-									</label>\
-								</span>\
-								<span class="input input--juro">\
-									<input class="input__field input__field--juro" type="text" id="input-value{2}" name="value{3}"/>\
-									<label class="input__label input__label--juro" >\
-										<span class="input__label-content input__label-content--juro">内容</span>\
-									</label>\
-								</span>\
-								<span class="input"><input class="check_encrypt" name="encrypt{4}" type="checkbox" value="0" /></span>\
-								<span class="input"><label class="new_item"><span class="input__label-content">+添加</span></label></span>\
-							</section>';
-			$(this).parent().parent().after(new_item.format(form_items, form_items, form_items, form_items, form_items++));
-			$(this).parent().parent().next().fadeIn(300);
-		});
-		
-		//输入框动态效果
-		$("#new_record").on("focus", ".input__field", function(){
-			$(this).parent().addClass("input--filled");
-		});
-		$("#new_record").on("blur", ".input__field", function(){
-			if($(this).val() == '')
-			{
-				$(this).parent().removeClass("input--filled");
-			}
+		$("#new_record").on("click", ".plus-button", function(){
+			var new_item = '<div class="input-fields">\
+								<input type="text" id="input-name{0}" name="name{1}" class="placeholder" placeholder="段名" autocomplete="off"><input style="display:none">\
+								<input type="text" id="input-value{2}" name="value{3}" class="placeholder" placeholder="内容" autocomplete="off">\
+								<div class="checkbox-holder"><input type="checkbox" id="checkbox-encrypt{4}" name="encrypt{5}" value="0"><label for="checkbox-encrypt{6}"></label></div>\
+								<a href="####" class="plus-button">+</a>\
+							</div>';
+			$(this).parent().after(new_item.format(form_items, form_items, form_items, form_items, form_items, form_items, form_items++));
+			$(this).parent().next().fadeIn(300);
 		});
 
 		//删除记录
@@ -119,7 +99,8 @@ function FormSubmit()
 		});
 
 		//点击加密复选框时动态改变输入框类型
-		$("#new_record").on("click", ".check_encrypt", function(){
+		$("#new_record").on("click", "[type=checkbox]", function(){
+			
 			$(this).val($(this).attr("checked") == "checked" ? 1 : 0);
 			document.getElementById($(this).parent().parent().find("[name^=value]").attr("id")).type = $(this).val() == 1 ? "password" : "text";
 		});
@@ -175,13 +156,11 @@ user_mktime($_SESSION['times']);
 //输出公钥到浏览器
 echo '<input type="hidden" id="publickey_e" value="' . $_SESSION['publickey']['e']. '">';
 echo '<input type="hidden" id="publickey_n" value="' . $_SESSION['publickey']['n']. '">';
-
 if($_POST['_post_type'] == "new_record")
 {
 	$form_data['recordname'] = rsa_decrypt($rsa, $_POST['recordname']);
 	foreach($_POST as $name => $value)
 	{
-		
  		if(preg_match("/^name(\d+)$/", $name, $matches))
  		{
  			if($_POST["value".$matches[1]])
@@ -256,6 +235,9 @@ else if($_GET['type'] == "new")
 	//显示新建记录页面
 	echo "<script>form_items=4;</script>";
 	include("new_record.html");
+	//echo <<<STR
+	
+STR;
 }
 elseif($_GET['type'] == "show")
 {
@@ -319,7 +301,7 @@ else if($_GET['type'] == "export")
 	</div>
 
 	<footer>
-	<span class="alignleft">Copyright © 2017 Soe</span><br\>
+	<span class="alignleft">Copyright © 2017 Soe</span><br>
 	<span class="alignright"><a href="http://www.miitbeian.gov.cn/" rel="external nofollow" target="_blank">鄂ICP备17003963号</a></span>
 	<br>
 	</footer>

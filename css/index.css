@@ -425,13 +425,7 @@ footer {
 	font-weight: 300;
 	font-size: 1.4rem;
 }
-.post {
-	width: 93%;
-	float: right;
-	margin: 2rem 3% 0 0;
-	font-size: 1.6rem;
-	line-height: 2.8rem;
-}
+
 .post .post_img {
 	max-width: 20rem;
 	height: auto;

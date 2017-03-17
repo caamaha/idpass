@@ -1,0 +1,158 @@
+/** ==========================
+ * Input fields
+ =============================*/
+@charset "UTF-8";
+
+/* Main CSS */
+.slick-form {
+	
+	height: 155px;
+	margin: 0 auto;
+}
+
+.input-fields label {
+	display: none;
+}
+
+.placeholder {
+    color: #444;
+}
+
+.slick-form input[type="text"],.slick-form input[type="password"] {
+	width: 20%;
+	height: 40px;
+	positon: relative;
+	margin-top: 7px;
+	font-size: 14px;
+	color: #ff5;
+	outline: none;
+	border: 2px solid;
+
+	padding-left: 20px;
+	
+	-webkit-background-clip: padding-box;
+	-moz-background-clip: padding-box;
+	background-clip: padding-box;
+	border-radius: 6px;
+
+	background:#000;
+	border-color:#ccc #ccc;
+}
+
+.slick-form input[type="text"]:focus,.slick-form input[type="password"]:focus {
+	border-color:#22f #22f;
+}
+
+.slick-form input:first-child {
+	margin-top: 0px;
+}
+
+/** ==========================
+ * Checkbox
+ =============================*/
+.checkbox-holder{
+	font-size: 62.5%;
+	font-family: Arial, sans-serif;
+	display: inline-block;
+	vertical-align:middle; 
+}
+
+.checkbox-holder label {
+	display: inline;
+}
+
+input[type=checkbox] {
+	display:none
+}
+input[type=checkbox]+label {
+	cursor:pointer;
+	font-size:1em
+}
+
+
+[id^=checkbox-encrypt]+label {
+	background-color:#222;
+	padding:9px;
+	border-radius:5px;
+	display:inline-block;
+	position:relative;
+	margin-right:9px;
+	width:45px;
+	box-shadow:0 0 1px rgba(0,0,0,.6);
+	height:10px
+}
+[id^=checkbox-encrypt]+label:before {
+	content:' ';
+	position:absolute;
+	background:#aaa;
+	top:-1px;
+	z-index:99999;
+	left:-1px;
+	width:21px;
+	height:30px;
+	border-radius:3px;
+	box-shadow:0 0 1px rgba(0,0,0,.6),inset 0 -18px 15px -10px rgba(0,0,0,.05)
+}
+[id^=checkbox-encrypt]+label:after {
+	content:'明文';
+	position:absolute;
+	top:7px;
+	left:33px;
+	font-size:1.2em;
+	color:#ccc
+}
+[id^=checkbox-encrypt]:checked+label:after {
+	content:'密文';
+	left:8px;
+	color:#0cc
+}
+[id^=checkbox-encrypt]:checked+label:before {
+	content:' ';
+	position:absolute;
+	z-index:99999;
+	left:44px
+}
+[id^=checkbox-encrypt]+label:before {
+	width:21px;
+	height:24px;
+	top:2px;
+	left:2px
+}
+[id^=checkbox-encrypt]:checked+label:before {
+	left:40px
+}
+[id^=checkbox-encrypt]+label:after, [id^=checkbox-encrypt]+label:before{
+	-webkit-transition:all .1s ease-in;
+	transition:all .1s ease-in
+}
+
+/** ==========================
+ * Plus button
+ =============================*/
+
+.plus-button {
+    background-color: #e7e7e7;
+	color: black;
+	border-radius: 20%;
+	border: 2px solid #0ff;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+	-webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+	width:30px;
+	line-height: 30px;
+	vertical-align: middle;
+}
+
+.plus-button:hover {
+    background-color: #111;
+    color: white;
+}
+
+.plus-button:active {
+  background-color: #111;
+  transform: translateY(50%);
+}
+
