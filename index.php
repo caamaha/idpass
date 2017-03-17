@@ -67,7 +67,7 @@ function FormSubmit()
 		});
 
 		//删除记录
-		$("a[name=delete_record").on("click", function(){
+		$("a[name=delete_record]").on("click", function(){
 			if(!confirm("确定删除记录？"))
 				event.preventDefault();
 		});
@@ -241,26 +241,8 @@ STR;
 }
 elseif($_GET['type'] == "show")
 {
-	//显示所有记录
-	$query = sprintf("select distinct record from idpass_secret where user_id = %d", $_SESSION['user_id']);
-	$result = mysql_query($query);
-	$row = mysql_fetch_array($result);
-	if(is_array($row))
-	{
-		echo '<h2>记录列表</h2>';
-		echo '<ul>';
-		do
-		{
-			$output = sprintf('<li><a href="?type=showrecord&name=%s">%s</a><label></label>
-							       <a href="?type=deleterecord&name=%s" name="delete_record">删除</a></li>', $row[0], $row[0], $row[0]);
-			echo $output;
-		} while($row = mysql_fetch_array($result));
-		echo '</ul>';
-	}
-	else
-	{
-		echo '<h2>无记录</h2>';
-	}
+	require_once("show.php");
+	ShowRecords($_SESSION['user_id']);
 }
 elseif($_GET['type'] == "showrecord")
 {
@@ -308,8 +290,6 @@ else if($_GET['type'] == "export")
 	
 	<!-- 辅助复制到粘贴板 -->
 	<button id="cpbtn" hidden></button>
-
-
 <script>
 //支持复制到粘贴板
 var clipboard = new Clipboard('#cpbtn', {

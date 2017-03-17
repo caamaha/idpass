@@ -5,11 +5,6 @@
 <title>登陆</title>
 <link rel="stylesheet" href="css/login.css" media="screen" type="text/css" />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=8">
-<meta http-equiv="Expires" content="0">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Cache-control" content="no-cache">
-<meta http-equiv="Cache" content="no-cache">
 <script src="js/jsbn/jsbn.js"></script>
 <script src="js/jsbn/jsbn2.js"></script>
 <script src="js/jsbn/prng4.js"></script>
@@ -69,6 +64,11 @@ echo '<input type="hidden" id="server_public_e" value="' . $_SESSION['publickey'
 function Login($rsa)
 {
 	$user_name = $_POST['username'];
+	if($user_name == '')
+	{
+		echo "<h1>用户名不能为空<h1><br>";
+		return;
+	}
 	$query = "select * from idpass_users where username = '$user_name'";
 	$result = mysql_query($query);
 	$us = is_array($row = mysql_fetch_array($result));
@@ -152,8 +152,6 @@ elseif($_POST['type'] == 'register')
 {
 	Register($rsa);
 }
-
-
 
 ?>
 <div>

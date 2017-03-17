@@ -1,41 +1,14 @@
 <?php
 require_once("load.php");
+require_once("show.php");
 
 function ExportSecret($user_id)
 {
-	$query = "select * from idpass_users where id = '$user_id'";
-	$result = mysql_query($query);
-	$row = mysql_fetch_array($result);
-	if(!is_array($row))
+	$records = GetRecords($user_id);
+	if(!$records)
 	{
-		return;
-	}
-	$user_name = $row['username'];
-	$records = array();
-	
-	//查询所有记录
-	$query = sprintf("select distinct record from idpass_secret where user_id = %d", $user_id);
-	$records_result = mysql_query($query);
-	$records_row = mysql_fetch_array($records_result);
-	if(is_array($records_row))
-	{
-		do
-		{
-			$record_name = $records_row[0];
-			$one_record = array($record_name);
-			
-			$query = sprintf("select name, value, encrypt from idpass_secret where user_id = %d and record = '%s'", $user_id, $record_name);
-			$result = mysql_query($query);
-			$row = mysql_fetch_array($result);
-			if(is_array($row))
-			{
-				do
-				{
-					array_push($one_record, $row[0], $row[1], $row[2]);
-				} while($row = mysql_fetch_array($result));
-			}
-			array_push($records, $one_record);
-		} while($records_row = mysql_fetch_array($records_result));
+		echo '<h1>无记录</h1>';
+		return false;
 	}
 	
 	$txt = <<<STR
@@ -70,11 +43,6 @@ function DecryptRecords()
 		val_set[i].setAttribute('data-clipboard-text', val_set[i].innerHTML.toString());
 	}
 }
-$(document).ready(function(){
-	$("#decrypt").click(function(){
-				DecryptRecords();
-			});
-});
 </script>
 
 </head>
@@ -84,7 +52,7 @@ $(document).ready(function(){
 	<form id="slick-login">
 		<label for="username">username</label><input type="text" id="username" name="username" class="placeholder" placeholder="user name">
 		<label for="password">password</label><input type="password" id="password" name="password" class="placeholder" placeholder="password">
-		<input type="button" id="decrypt" value="Decrypt">
+		<input type="button" id="decrypt" value="Decrypt" onclick="DecryptRecords()">
 	</form>
 	</div>
 	<div>
@@ -98,7 +66,7 @@ STR;
 		for($i = 1; $i <= $lines; $i++)
 		{
 			$txt .= '<tr>';
-			$txt .= sprintf('<td width="200 px"><a href="" onclick="return false;">%s</a></td><td><a href="" encrypted="%d" onclick="return false;">%s</a></td>', $record[$i*3-2], $record[$i*3], $record[$i*3-1]);
+			$txt .= sprintf('<td width="200 px"><a href="####">%s</a></td><td><a href="####" encrypted="%d">%s</a></td>', $record[$i*3-2], $record[$i*3], $record[$i*3-1]);
 			$txt .= '</tr>';
 		}
 		$txt .= '</table></ul></li>';
@@ -115,6 +83,10 @@ STR;
 STR;
 	
 	//下载数据文件到客户端
+	$query = "select * from idpass_users where id = '$user_id'";
+	$result = mysql_query($query);
+	$row = mysql_fetch_array($result);
+	$user_name = $row['username'];
 	$filename = 'idpass_' . $user_name . '.html';
 	$encoded_filename = urlencode($filename);
 	$encoded_filename = str_replace("+", "%20", $encoded_filename);
