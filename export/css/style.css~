@@ -28,11 +28,6 @@ table {
 	word-wrap: break-all;
 }
 
-table td:first-child
-{
-	width: 150px;
-}
-
 h1 {
  	color: #FFF;
  	font-size: 24px;

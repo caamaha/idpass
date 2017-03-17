@@ -66,7 +66,7 @@ STR;
 		for($i = 1; $i <= $lines; $i++)
 		{
 			$txt .= '<tr>';
-			$txt .= sprintf('<td width="200 px"><a href="####">%s</a></td><td><a href="####" encrypted="%d">%s</a></td>', $record[$i*3-2], $record[$i*3], $record[$i*3-1]);
+			$txt .= sprintf('<td><a href="####">%s</a></td><td><a href="####" encrypted="%d">%s</a></td>', $record[$i*3-2], $record[$i*3], $record[$i*3-1]);
 			$txt .= '</tr>';
 		}
 		$txt .= '</table></ul></li>';

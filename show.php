@@ -54,6 +54,12 @@ function ShowRecords($user_id)
 <script>
 function DecryptValue(val)
 {
+	if(sessionStorage.getItem('aes_key_valid') != 1)
+	{
+		alert('请重新登陆');
+		location.href='login.php';
+		return;
+	}
 	var key = CryptoJS.enc.Utf8.parse(sessionStorage.getItem('aes_key')); 
 	var iv  = CryptoJS.enc.Utf8.parse('1234567812345678'); 
 	return CryptoJS.AES.decrypt(val.toString(), key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8);;
@@ -70,13 +76,13 @@ STR;
 	
 	foreach($records as $record)
 	{
-		$txt .= '<li><div class="link">' . $record[0] . '<a href="?type=deleterecord&name=' . $record[0] . '" name="delete_record">删除</a><a href="####">编辑</a></div>';
+		$txt .= '<li><div class="link"><label>' . $record[0] . '</label><a href="?type=deleterecord&name=' . $record[0] . '" name="delete_record">删除</a><a href="index.php?type=edit&name=' . urlencode($record[0]) . '">编辑</a></div>';
 		$txt .= '<ul class="submenu"><table>';
 		$lines = (count($record) - 1) / 3;
 		for($i = 1; $i <= $lines; $i++)
 		{
 			$txt .= '<tr>';
-			$txt .= sprintf('<td width="200 px"><a href="####">%s</a></td><td><a href="####" encrypted="%d">%s</a></td>', $record[$i*3-2], $record[$i*3], $record[$i*3-1]);
+			$txt .= sprintf('<td ><a href="####">%s</a></td><td><a href="####" encrypted="%d">%s</a></td>', $record[$i*3-2], $record[$i*3], $record[$i*3-1]);
 			$txt .= '</tr>';
 		}
 		$txt .= '</table></ul></li>';

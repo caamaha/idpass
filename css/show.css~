@@ -24,7 +24,7 @@
 	word-wrap: break-all;
 }
 
-.show-holder td:first-child
+td:first-child
 {
 	width: 150px;
 }

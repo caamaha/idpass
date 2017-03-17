@@ -24,6 +24,12 @@
 //提交表单时加密内容
 function FormSubmit()
 {
+	if(sessionStorage.getItem('aes_key_valid') != 1)
+	{
+		alert('请重新登陆');
+		location.href='login.php';
+		return;
+	}
 	var rsa = new RSAKey();
 	var input_set = document.getElementsByTagName("input");
 
@@ -68,7 +74,8 @@ function FormSubmit()
 
 		//删除记录
 		$("a[name=delete_record]").on("click", function(){
-			if(!confirm("确定删除记录？"))
+			name = $(this).parent().children("label").text();
+			if(!confirm("确定删除记录" + name + "?"))
 				event.preventDefault();
 		});
 
@@ -87,6 +94,12 @@ function FormSubmit()
 		$(".cpbtn").on("click", function(){
 			if($(this).attr("encrypted") == "1")
 			{
+				if(sessionStorage.getItem('aes_key_valid') != 1)
+				{
+					alert('请重新登陆');
+					location.href='login.php';
+					return;
+				}
 				var key = CryptoJS.enc.Utf8.parse(sessionStorage.getItem('aes_key')); 
 				var iv  = CryptoJS.enc.Utf8.parse('1234567812345678'); 
 				window._clipboard_text = CryptoJS.AES.decrypt($(this).attr("data-clipboard-text").toString(), key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8);
@@ -230,19 +243,74 @@ if($_POST['_post_type'] == "new_record")
 		}
 	}
 }
+else if($_POST['_post_type'] == "edit_record")
+{
+	require_once('edit.php');
+	
+	
+	$form_data = ParseFormData($_POST, $rsa);
+	
+	if(!$form_data)
+	{
+		return;
+	}
+	
+	//检查原有表单是否存在
+	$query = sprintf("select * from idpass_secret where user_id = %d and record = '%s'", $_SESSION['user_id'], $_POST['old_name']);
+	$result = mysql_query($query);
+	$row = mysql_fetch_array($result);
+	if(!is_array($row))
+	{
+		echo "<h1>要编辑的记录不存在</h1>";
+		return;
+	}
+	
+	//删除原有数据
+	$query = sprintf("delete from idpass_secret where user_id = %d and record = '%s'", $_SESSION['user_id'], $_POST['old_name']);
+	$result = mysql_query($query);
+	
+	if($result != true)
+	{
+		echo $query;
+		echo "<h1>删除记录失败</h1>";
+		return;
+	}
+	
+	//生成新的记录
+	foreach($form_data as $name => $value)
+	{
+		if(preg_match("/^name(\d+)$/", $name, $matches))
+		{
+			$_name = $form_data["name".$matches[1]];
+			$_value = $form_data["value".$matches[1]];
+			$_encrypt = $form_data["encrypt".$matches[1]];
+			$query = sprintf("insert into idpass_secret(user_id, record, name, value, encrypt) values(%d, '%s', '%s', '%s', %d)",
+					$_SESSION['user_id'], $form_data['recordname'], $_name, $_value, $_encrypt);
+			$result = mysql_query($query);
+			$row = mysql_fetch_array($result);
+			if($result == true)
+			{
+				echo "记录成功<br>";
+			}
+			echo $query.'<br>';
+		}
+	}
+}
 else if($_GET['type'] == "new")
 {
 	//显示新建记录页面
 	echo "<script>form_items=4;</script>";
 	include("new_record.html");
-	//echo <<<STR
-	
-STR;
 }
 elseif($_GET['type'] == "show")
 {
 	require_once("show.php");
 	ShowRecords($_SESSION['user_id']);
+}
+elseif($_GET['type'] == "edit")
+{
+	require_once("edit.php");
+	EditRecord($_SESSION['user_id'], urldecode($_GET['name']));
 }
 elseif($_GET['type'] == "showrecord")
 {

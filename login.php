@@ -18,6 +18,7 @@ function FormSubmit(type)
 	//根据用户信息生成AES密钥
 	var aes_key = CryptoJS.MD5(document.getElementById("username").value + document.getElementById("password").value + "3.141592653589793238462643383");
 	sessionStorage.setItem('aes_key', aes_key);
+	sessionStorage.setItem('aes_key_valid', 0);
 	var rsa = new RSAKey();
 	rsa.setPublic(document.getElementById('server_public_n').value, document.getElementById('server_public_e').value);
 	document.getElementById('password').value = rsa.encrypt(document.getElementById('password').value);
@@ -61,12 +62,19 @@ require_once("load.php");
 echo '<input type="hidden" id="server_public_n" value="' . $_SESSION['publickey']['n']. '">';
 echo '<input type="hidden" id="server_public_e" value="' . $_SESSION['publickey']['e']. '">';
 
+function SessionDestroy()
+{
+	session_destroy();
+	echo '<meta http-equiv="refresh" content="0;URL=login.php">';
+}
+
 function Login($rsa)
 {
 	$user_name = $_POST['username'];
 	if($user_name == '')
 	{
 		echo "<h1>用户名不能为空<h1><br>";
+		SessionDestroy();
 		return;
 	}
 	$query = "select * from idpass_users where username = '$user_name'";
@@ -78,6 +86,7 @@ function Login($rsa)
 	if($_POST['password'] == false)
 	{
 		echo "<h1>数据校验失败<h1><br>";
+		SessionDestroy();
 		return;
 	}
 	
@@ -87,10 +96,12 @@ function Login($rsa)
 		$_SESSION['user_shell'] = hash('sha256', $row['username'].$row['password'].$row['salt']);
 		$_SESSION['times'] = mktime();  //登录的时间
 		echo "<h1>登录成功<h1>";
+		echo '<script>sessionStorage.setItem("aes_key_valid", 1);</script>';
 		echo '<meta http-equiv="refresh" content="1;URL=index.php">';
 	}else{
 		echo "<h1>用户名或密码错误</h1>";
-		session_destroy();
+		SessionDestroy();
+		echo '<meta http-equiv="refresh" content="0;URL=login.php">';
 	}
 }
 
@@ -100,12 +111,14 @@ function Register($rsa)
 	if($user_name == '')
 	{
 		echo "<h1>用户名不能为空<h1><br>";
+		SessionDestroy();
 		return;
 	}
 	$_POST['password'] = rsa_decrypt($rsa, $_POST['password']);
 	if($_POST['password'] == false)
 	{
 		echo "<h1>数据校验失败<h1><br>";
+		SessionDestroy();
 		return;
 	}
 	$salt = bin2hex(random_bytes(4));
@@ -118,6 +131,7 @@ function Register($rsa)
 	if(is_array($row))
 	{
 		echo "<h1>用户已存在<h1><br>";
+		SessionDestroy();
 	}
 	else
 	{
@@ -135,11 +149,13 @@ function Register($rsa)
 				
 			//注册成功后转向主页
 			echo "<h1>注册成功<h1>";
+			echo '<script>sessionStorage.setItem("aes_key_valid", 1);</script>';
 			echo '<meta http-equiv="refresh" content="1;URL=index.php">';
 		}
 		else
 		{
 			echo "<h1>注册失败<h1>";
+			SessionDestroy();
 		}
 	}
 }
