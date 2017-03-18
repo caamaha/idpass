@@ -7,6 +7,13 @@
 <link rel="stylesheet" type="text/css" href="css/index.css" />
 <link rel="stylesheet" type="text/css" href="css/input-field.css" />
 
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=8">
+<meta http-equiv="Expires" content="0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-control" content="no-cache">
+<meta http-equiv="Cache" content="no-cache">
+
 <script src="js/jquery-1.8.0.js"></script>
 <script src="js/string_format.js"></script>
 <script src="js/clipboard.min.js"></script>
@@ -19,7 +26,6 @@
 //判断是否需要重新登陆
 if(sessionStorage.getItem('aes_key_valid') != 1)
 {
-	alert('请重新登陆');
 	location.href='login.php';
 }
 //提交表单时加密内容
@@ -27,7 +33,6 @@ function FormSubmit()
 {
 	if(sessionStorage.getItem('aes_key_valid') != 1)
 	{
-		alert('请重新登陆');
 		location.href='login.php';
 		return;
 	}
@@ -97,7 +102,6 @@ function FormSubmit()
 			{
 				if(sessionStorage.getItem('aes_key_valid') != 1)
 				{
-					alert('请重新登陆');
 					location.href='login.php';
 					return;
 				}
@@ -265,7 +269,7 @@ else if($_GET['type'] == "new")
 {
 	//显示新建记录页面
 	echo "<script>form_items=4;</script>";
-	include("new_record.html");
+	include("assets/components/new_record.html");
 }
 elseif($_GET['type'] == "show")
 {
@@ -274,37 +278,27 @@ elseif($_GET['type'] == "show")
 }
 elseif($_GET['type'] == "edit")
 {
+	//编辑记录
 	require_once("edit.php");
 	EditRecord($_SESSION['user_id'], urldecode($_GET['name']));
 }
-elseif($_GET['type'] == "showrecord")
-{
-	echo '<h2>' . urldecode($_GET['name']) .'</h2>';
-	$query = sprintf("select name, value, encrypt from idpass_secret where user_id = %d and record = '%s'", $_SESSION['user_id'], urldecode($_GET['name']));
-	$result = mysql_query($query);
-	$row = mysql_fetch_array($result);
-	if(is_array($row))
-	{
-		echo '<ul>';
-		do
-		{
-			$output = sprintf('<li><label>%s %s</label><button class="cpbtn btn" data-clipboard-text="%s" encrypted="%d"><img src="assets/images/clippy.svg" width="13"></button></li>', $row[0], $row[1], $row[1], $row[2]);
-			echo $output;
-		} while($row = mysql_fetch_array($result));
-		echo '</ul>';
-	}
-}
 elseif($_GET['type'] == "deleterecord")
 {
+	//删除记录
 	$record_name = htmlentities(mysql_real_escape_string(urldecode($_GET['name'])), ENT_QUOTES);
 	$query = sprintf("delete from idpass_secret where user_id = %d and record = '%s'", $_SESSION['user_id'], $record_name);
 	mysql_query($query);
 	echo '<script>self.location="?type=show";</script>';
 	exit;
 }
+elseif($_GET['s'])
+{
+	//搜索
+	require_once('search.php');
+	$key_word = htmlentities(mysql_real_escape_string($_GET['s']));
+	Search($_SESSION['user_id'], $key_word);
+}
 ?>
-
-
 		</div>
 		<div class="clearfix"></div>
 	</div>

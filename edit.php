@@ -69,7 +69,6 @@ function DecryptRecord()
 {
 	if(sessionStorage.getItem('aes_key_valid') != 1)
 	{
-		alert('请重新登陆');
 		location.href='login.php';
 		return;
 	}
