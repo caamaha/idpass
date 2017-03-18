@@ -2,7 +2,7 @@
 
 ---
 
-# Introduction
+## Introduction
 It's an online password manager wrote in PHP. Users can store privacy here and the stored privacy is encrypted. Demo website is [IDPass](http://idpass.fairylive.cn).   
   
 All privacy is encrypted with AES in browser with private password. Information transfered between browser and server is encrypted with RSA.  
@@ -10,6 +10,15 @@ All privacy is encrypted with AES in browser with private password. Information 
 It's been designed friendly to users. I have finished the basic functions and I am trying to use this to save my private information.  
 
 By Soe.
+
+## Install
+Requirement:PHP 5 and MySQL.  
+
+Clone this repository and edit config.php according to your situation. Then you can managed your privacy via index.php. 
+
+## Usage
+Currently only have a Chinese interface, follow below instructions to managed privacy.
+
 
 # IDPass介绍
 
@@ -26,6 +35,8 @@ By Soe.
 　　点击记录名称右侧的*删除*，可以删除该记录。点击记录名称右侧的*编辑*，可以编辑该记录。
 ### 搜索
 　　在菜单右侧的搜索框输入要搜索的关键字，关键字不区分大小写，输入完成后按回车即可进行搜索。
+### 导出
+　　在菜单中点击导出，可以把所有的个人信息导出为一个html文件，单独打开该html文件并输入你的用户名和密码进行解密。
 ## 注意事项
 　　注册账号后，需要注意牢记你的账户名称和密码，所有的加密信息均是以个人的帐密为基础在本地进行AES加密，服务器的数据库中仅仅存储了加密后的个人信息，在无法得到你的帐密信息情况下，即使是身为开发者也无法解密你的信息。
 ## 如何保证数据安全
