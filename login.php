@@ -5,6 +5,7 @@
 <title>登陆</title>
 <link rel="stylesheet" href="css/login.css" media="screen" type="text/css" />
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <script src="js/jsbn/jsbn.js"></script>
 <script src="js/jsbn/jsbn2.js"></script>
 <script src="js/jsbn/prng4.js"></script>
@@ -73,7 +74,7 @@ function Login($rsa)
 	$user_name = mysql_real_escape_string(stripslashes($_POST['username']));
 	if($user_name == '')
 	{
-		echo "<h1>用户名不能为空<h1><br>";
+		echo "<h1>用户名不能为空<h1>";
 		SessionDestroy();
 		return;
 	}
@@ -85,7 +86,7 @@ function Login($rsa)
 	
 	if($_POST['password'] == false)
 	{
-		echo "<h1>数据校验失败<h1><br>";
+		echo "<h1>数据校验失败<h1>";
 		SessionDestroy();
 		return;
 	}
@@ -97,7 +98,7 @@ function Login($rsa)
 		$_SESSION['times'] = mktime();  //登录的时间
 		echo "<h1>登录成功<h1>";
 		echo '<script>sessionStorage.setItem("aes_key_valid", 1);</script>';
-		echo '<meta http-equiv="refresh" content="1;URL=index.php">';
+		echo '<meta http-equiv="refresh" content="0;URL=index.php">';
 	}else{
 		echo "<h1>用户名或密码错误</h1>";
 		SessionDestroy();
@@ -110,14 +111,14 @@ function Register($rsa)
 	$user_name = mysql_real_escape_string(stripslashes(str_replace(" ", "", $_POST['username'])));
 	if($user_name == '')
 	{
-		echo "<h1>用户名不能为空<h1><br>";
+		echo "<h1>用户名不能为空<h1>";
 		SessionDestroy();
 		return;
 	}
 	$_POST['password'] = mysql_real_escape_string(stripslashes(rsa_decrypt($rsa, $_POST['password'])));
 	if($_POST['password'] == false)
 	{
-		echo "<h1>数据校验失败<h1><br>";
+		echo "<h1>数据校验失败<h1>";
 		SessionDestroy();
 		return;
 	}
@@ -130,7 +131,7 @@ function Register($rsa)
 	$row = mysql_fetch_array($result);
 	if(is_array($row))
 	{
-		echo "<h1>用户已存在<h1><br>";
+		echo "<h1>用户已存在<h1>";
 		SessionDestroy();
 	}
 	else
@@ -150,7 +151,7 @@ function Register($rsa)
 			//注册成功后转向主页
 			echo "<h1>注册成功<h1>";
 			echo '<script>sessionStorage.setItem("aes_key_valid", 1);</script>';
-			echo '<meta http-equiv="refresh" content="1;URL=index.php">';
+			echo '<meta http-equiv="refresh" content="0;URL=index.php">';
 		}
 		else
 		{
@@ -168,19 +169,32 @@ elseif($_POST['type'] == 'register')
 {
 	Register($rsa);
 }
-
+else
+{
+	echo '<h1> 请输入登陆或注册信息</h1>';
+}
 ?>
+
 <div>
-	<form id="slick-login" action="" method="post">
+	<form id="slick-login" action="" method="post" onkeydown="SubmitByEnter();">
 		<input type="hidden" id="client_public_n" name="client_public_n" value="">
 		<input type="hidden" id="client_public_e" name="client_public_e" value="">
 		<input type="hidden" id="type" name="type" value="">
-		<input type="text" id="username" name="username" class="placeholder" placeholder="用户名" autocomplete="off"/><input style="display:none">
-		<input type="password" id="password" name="password" class="placeholder" placeholder="密　码" autocomplete="off"/>
-		<input type="button" onclick="FormSubmit(1)" value="登录" /><br>
-		<input type="button" onclick="FormSubmit(2)" value="注册" /><br>
+		<input type="text" id="username" name="username" class="placeholder" placeholder="用户名" autocomplete="off" autofocus="autofocus" tabindex="1"/>
+		<input style="display:none">
+		<input type="password" id="password" name="password" class="placeholder" placeholder="密　码" autocomplete="off" tabindex="2"/>
+		<input type="button" onclick="FormSubmit(1)" value="登录" tabindex="3"/><br>
+		<input type="button" onclick="FormSubmit(2)" value="注册" tabindex="4"/><br>
 	</form>
 </div>
-
+<script>
+    function SubmitByEnter()
+    {
+        if(event.keyCode == 13)
+        {
+        	FormSubmit(1);
+        }
+    }
+</script>
 </body>
 </html>

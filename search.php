@@ -4,21 +4,25 @@ require_once('show.php');
 
 function CheckKeyword($key_word, $record)
 {
-	//检查记录是否包含关键字
-	if((strstr($record[0], $key_word)))
-		return true;
+	//组合记录为单条字符串
+	$content = $record[0] . ' ';
 	
 	$lines = (count($record) - 1) / 3;
 	for($i = 1; $i <= $lines; $i++)
 	{
 		if($record[$i*3] == 0)
 		{
-			if(strstr($record[$i*3-2], $key_word) || strstr($record[$i*3-1], $key_word))
-				return true;
+			$content .= $record[$i*3-2] . ' ' . $record[$i*3-1] . ' ';
 		}
 	}
 	
-	return false;
+	//检查记录是否包含关键字
+	if(preg_match("/" . $key_word . "/i", $content))
+		return true;
+	else
+		return false;
+	if((strstr($record[0], $key_word)))
+		return true;
 }
 
 function Search($user_id, $key_word)

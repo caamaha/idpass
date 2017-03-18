@@ -1,6 +1,10 @@
 <?php
 namespace PHPArchive;
 
-echo htmlentities('<h你好啊>');
+if (preg_match("/bb/i","BBccc")){
+	echo '匹配成功<hr />';
+}else {
+	echo '匹配失败<hr />';
+}
 
 ?>
