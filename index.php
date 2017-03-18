@@ -7,13 +7,6 @@
 <link rel="stylesheet" type="text/css" href="css/index.css" />
 <link rel="stylesheet" type="text/css" href="css/input-field.css" />
 
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=8">
-<meta http-equiv="Expires" content="0">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Cache-control" content="no-cache">
-<meta http-equiv="Cache" content="no-cache">
-
 <script src="js/jquery-1.8.0.js"></script>
 <script src="js/string_format.js"></script>
 <script src="js/clipboard.min.js"></script>
@@ -285,7 +278,7 @@ elseif($_GET['type'] == "edit")
 elseif($_GET['type'] == "deleterecord")
 {
 	//删除记录
-	$record_name = htmlentities(mysql_real_escape_string(urldecode($_GET['name'])), ENT_QUOTES);
+	$record_name = htmlentities(addslashes(urldecode($_GET['name'])));
 	$query = sprintf("delete from idpass_secret where user_id = %d and record = '%s'", $_SESSION['user_id'], $record_name);
 	mysql_query($query);
 	echo '<script>self.location="?type=show";</script>';
@@ -295,8 +288,12 @@ elseif($_GET['s'])
 {
 	//搜索
 	require_once('search.php');
-	$key_word = htmlentities(mysql_real_escape_string($_GET['s']));
+	$key_word = htmlentities(addslashes($_GET['s']));
 	Search($_SESSION['user_id'], $key_word);
+}
+else 
+{
+	include('assets/components/introduction.html');
 }
 ?>
 		</div>

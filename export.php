@@ -1,9 +1,9 @@
 <?php
 namespace PHPArchive;
 
-require_once("php-archive/src/Zip.php");
 require_once("load.php");
 require_once("show.php");
+require_once("lib/php-archive/src/Zip.php");
 
 function ExportSecret($user_id)
 {
@@ -136,6 +136,8 @@ STR;
 	echo $tar->getArchive();
 }
 
+
+user_shell($_SESSION['user_id'] , $_SESSION['user_shell']);
 ExportSecret($_SESSION['user_id']);
 
 ?>

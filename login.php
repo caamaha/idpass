@@ -71,7 +71,7 @@ function SessionDestroy()
 
 function Login($rsa)
 {
-	$user_name = mysql_real_escape_string(stripslashes($_POST['username']));
+	$user_name = addslashes(stripslashes($_POST['username']));
 	if($user_name == '')
 	{
 		echo "<h1>用户名不能为空<h1>";
@@ -82,7 +82,7 @@ function Login($rsa)
 	$result = mysql_query($query);
 	$us = is_array($row = mysql_fetch_array($result));
 	
-	$_POST['password'] = mysql_real_escape_string(stripslashes(rsa_decrypt($rsa, $_POST['password'])));
+	$_POST['password'] = addslashes(stripslashes(rsa_decrypt($rsa, $_POST['password'])));
 	
 	if($_POST['password'] == false)
 	{
@@ -108,14 +108,14 @@ function Login($rsa)
 
 function Register($rsa)
 {
-	$user_name = mysql_real_escape_string(stripslashes(str_replace(" ", "", $_POST['username'])));
+	$user_name = addslashes(stripslashes(str_replace(" ", "", $_POST['username'])));
 	if($user_name == '')
 	{
 		echo "<h1>用户名不能为空<h1>";
 		SessionDestroy();
 		return;
 	}
-	$_POST['password'] = mysql_real_escape_string(stripslashes(rsa_decrypt($rsa, $_POST['password'])));
+	$_POST['password'] = addslashes(stripslashes(rsa_decrypt($rsa, $_POST['password'])));
 	if($_POST['password'] == false)
 	{
 		echo "<h1>数据校验失败<h1>";

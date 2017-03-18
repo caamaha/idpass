@@ -2,8 +2,8 @@
 
 namespace PHPArchive;
 
-require_once 'php-archive/src/Archive.php';
-require_once 'php-archive/src/FileInfo.php';
+require_once 'lib/php-archive/src/Archive.php';
+require_once 'lib/php-archive/src/FileInfo.php';
 
 /**
  * Class Tar

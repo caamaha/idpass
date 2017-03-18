@@ -2,3 +2,4 @@
 session/
 .settings/
 certificates/
+config.php

@@ -4,7 +4,7 @@ require_once('load.php');
 
 function CheckInput($value)
 {
-	$value = htmlentities(mysql_real_escape_string($value), ENT_QUOTES);
+	$value = htmlentities(addslashes($value));
 	return $value;
 }
 

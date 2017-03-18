@@ -1,12 +1,12 @@
 <?php
 //包含phpseclib库
-set_include_path(get_include_path() . PATH_SEPARATOR . 'phpseclib');
+set_include_path(get_include_path() . PATH_SEPARATOR . 'lib/phpseclib');
 //包含随机数生成库
-set_include_path(get_include_path() . PATH_SEPARATOR . 'random_compat-2.0.7');
+set_include_path(get_include_path() . PATH_SEPARATOR . 'lib/random_compat-2.0.7/lib');
 
 require_once('config.php');
 require_once('Crypt/RSA.php');
-require_once('lib/random.php');
+require_once('random.php');
 
 header("Content-type: text/html; charset=utf-8");
 
@@ -72,6 +72,12 @@ mysql_query('SET character_set_database = utf8;');
 //用于判断用户是否登陆，以及其是否具有访问权限
 function user_shell($user_id, $shell)
 {
+	if($user_id !== addslashes($user_id))
+	{
+		echo "非法注入<br>";
+		echo '<meta http-equiv="refresh" content="1;URL=login.php">';
+		exit();
+	}
 	$query = "select * from idpass_users where id = '$user_id'";
 	$result = mysql_query($query);
 	$row = mysql_fetch_array($result);
