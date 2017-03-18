@@ -3,7 +3,7 @@
 ---
 
 ## Introduction
-It's an online password manager wrote in PHP. Users can store privacy here and the stored privacy is encrypted. Demo website is [IDPass](http://idpass.fairylive.cn).   
+It's an online password manager wrote in PHP. Users can store privacy here and the stored privacy is encrypted. Demo website is [IDPass](http://idpass.fairylive.cn). Cantact me if anyone interested in this manager.
   
 All privacy is encrypted with AES in browser with private password. Information transfered between browser and server is encrypted with RSA.  
   
