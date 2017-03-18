@@ -6,14 +6,15 @@
 
 <link rel="stylesheet" type="text/css" href="css/index.css" />
 <link rel="stylesheet" type="text/css" href="css/input-field.css" />
-
 <script src="js/jquery-1.8.0.js"></script>
 <script src="js/string_format.js"></script>
 <script src="js/clipboard.min.js"></script>
 <script src="js/jsbn/jsbn.js"></script>
+<script src="js/jsbn/jsbn2.js"></script>
 <script src="js/jsbn/prng4.js"></script>
 <script src="js/jsbn/rng.js"></script>
 <script src="js/jsbn/rsa.js"></script>
+<script src="js/jsbn/rsa2.js"></script>
 <script src="js/crypto/rollups/aes.js"></script>
 <script>
 //判断是否需要重新登陆
@@ -29,9 +30,10 @@ function FormSubmit()
 		location.href='login.php';
 		return;
 	}
-	var rsa = new RSAKey();
+	
 	var input_set = document.getElementsByTagName("input");
 
+	var rsa = new RSAKey();
 	rsa.setPublic(document.getElementById('publickey_n').value, document.getElementById('publickey_e').value);
 
 	var key = CryptoJS.enc.Utf8.parse(sessionStorage.getItem('aes_key')); 
@@ -55,6 +57,17 @@ function FormSubmit()
 	}
 	document.getElementById('new_record').submit();
 }
+//注销
+function LogOut()
+{
+	sessionStorage.clear();
+    var keys = document.cookie.match(/[^ =;]+(?=\=)/g);  
+    if(keys) {  
+        for(var i = keys.length; i--;)  
+            document.cookie = keys[i] + '=0;expires=' + new Date(0).toUTCString()  
+    }
+    location.href='login.php';
+}
 </script>
 <script>
 	var form_items = 4;
@@ -69,13 +82,6 @@ function FormSubmit()
 							</div>';
 			$(this).parent().after(new_item.format(form_items, form_items, form_items, form_items, form_items, form_items, form_items++));
 			$(this).parent().next().fadeIn(300);
-		});
-
-		//删除记录
-		$("a[name=delete_record]").on("click", function(){
-			name = $(this).parent().children("label").text();
-			if(!confirm("确定删除记录" + name + "?"))
-				event.preventDefault();
 		});
 
 		//提交创建表单后删除创建表单页面
@@ -147,7 +153,7 @@ user_mktime($_SESSION['times']);
 			<div class="menu-menu-1-container">
 			<ul id="menu-menu-1" class="menu"><li id="menu-item-29" class="menu-item menu-item-type-custom menu-item-object-custom current-menu-item menu-item-29"><a href="index.php">首页</a></li>
 				<li id="menu-item-41" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-41"><a href="export.php" target="_blank">导出</a></li>
-				<li id="menu-item-42" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-42"><a href="login.php">登陆</a></li>
+				<li id="menu-item-42" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-42"><a href="javascript:LogOut();">注销</a></li>
 				<li id="menu-item-28" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-28"><a href="index.php">关于</a></li>
 			</ul></div></div> <!--/menu-->
 
@@ -273,12 +279,12 @@ elseif($_GET['type'] == "edit")
 {
 	//编辑记录
 	require_once("edit.php");
-	EditRecord($_SESSION['user_id'], urldecode($_GET['name']));
+	EditRecord($_SESSION['user_id'], rsa_decrypt($rsa, urldecode($_GET['name'])));
 }
 elseif($_GET['type'] == "deleterecord")
 {
 	//删除记录
-	$record_name = htmlentities(addslashes(urldecode($_GET['name'])));
+	$record_name = htmlentities(addslashes(rsa_decrypt($rsa, urldecode($_GET['name']))));
 	$query = sprintf("delete from idpass_secret where user_id = %d and record = '%s'", $_SESSION['user_id'], $record_name);
 	mysql_query($query);
 	echo '<script>self.location="?type=show";</script>';

@@ -36,18 +36,26 @@ function FormSubmit(type)
 
 function PageLoad()
 {
-	//页面加载时清理sessionStorage并生成客户端RSA钥匙
+	//页面加载时生成客户端RSA钥匙
 	var rsa = new RSAKey();
-	rsa.generate(1024, '10001');
 
-	sessionStorage.setItem('rsa_n', rsa.n.toString(16));
-	sessionStorage.setItem('rsa_e', rsa.e.toString(16));
-	sessionStorage.setItem('rsa_d', rsa.d.toString(16));
-	sessionStorage.setItem('rsa_p', rsa.p.toString(16));
-	sessionStorage.setItem('rsa_q', rsa.q.toString(16));
-	sessionStorage.setItem('rsa_dmp1', rsa.dmp1.toString(16));
-	sessionStorage.setItem('rsa_dmq1', rsa.dmq1.toString(16));
-	sessionStorage.setItem('rsa_coeff', rsa.coeff.toString(16));
+	rsa_n = sessionStorage.getItem('rsa_n');
+	if(rsa_n == null)
+	{
+		rsa.generate(1024, '10001');
+		sessionStorage.setItem('rsa_n', rsa.n.toString(16));
+		sessionStorage.setItem('rsa_e', rsa.e.toString(16));
+		sessionStorage.setItem('rsa_d', rsa.d.toString(16));
+		sessionStorage.setItem('rsa_p', rsa.p.toString(16));
+		sessionStorage.setItem('rsa_q', rsa.q.toString(16));
+		sessionStorage.setItem('rsa_dmp1', rsa.dmp1.toString(16));
+		sessionStorage.setItem('rsa_dmq1', rsa.dmq1.toString(16));
+		sessionStorage.setItem('rsa_coeff', rsa.coeff.toString(16));
+	}
+	else
+	{
+		rsa.setPublic(rsa_n, sessionStorage.getItem('rsa_e'));
+	}
 	
 	document.getElementById("client_public_n").value = rsa.n.toString(16);
 	document.getElementById("client_public_e").value = rsa.e.toString(16);
@@ -96,6 +104,8 @@ function Login($rsa)
 		$_SESSION['user_id'] = $row['id'];
 		$_SESSION['user_shell'] = hash('sha256', $row['username'].$row['password'].$row['salt']);
 		$_SESSION['times'] = mktime();  //登录的时间
+		$_SESSION['client_public_n'] = $_POST['client_public_n'];	//记录浏览器生成的RSA公钥
+		$_SESSION['client_public_e'] = $_POST['client_public_e'];
 		echo "<h1>登录成功<h1>";
 		echo '<script>sessionStorage.setItem("aes_key_valid", 1);</script>';
 		echo '<meta http-equiv="refresh" content="0;URL=index.php">';
@@ -136,7 +146,7 @@ function Register($rsa)
 	}
 	else
 	{
-		$query = "insert into idpass_users(id, username, password, salt) values(null, '$user_name', '$password', '$salt')";
+		$query = "insert into idpass_users(id, username, password, salt, prio) values(null, '$user_name', '$password', '$salt', 0)";
 		$result = mysql_query($query);
 		
 		if($result)
@@ -147,7 +157,8 @@ function Register($rsa)
 			$_SESSION['user_id'] = $row['id'];
 			$_SESSION['user_shell'] = hash('sha256', $row['username'].$row['password'].$row['salt']);
 			$_SESSION['times'] = mktime();  //登录的时间
-				
+			$_SESSION['client_public_n'] = $_POST['client_public_n'];	//记录浏览器生成的RSA公钥
+			$_SESSION['client_public_e'] = $_POST['client_public_e'];
 			//注册成功后转向主页
 			echo "<h1>注册成功<h1>";
 			echo '<script>sessionStorage.setItem("aes_key_valid", 1);</script>';

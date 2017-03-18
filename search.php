@@ -27,7 +27,7 @@ function CheckKeyword($key_word, $record)
 
 function Search($user_id, $key_word)
 {
-	$records = GetRecords($user_id);
+	$records = GetRecords($user_id, 0);
 	if(!$records)
 	{
 		echo '<h1>无记录</h1>';

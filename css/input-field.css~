@@ -8,7 +8,6 @@
 	width: 90%;
 	height: 155px;
 	margin: 0 auto;
-	display: none;
 }
 
 .input-fields label {

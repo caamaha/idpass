@@ -4,7 +4,9 @@ require_once('load.php');
 
 function CheckInput($value)
 {
-	$value = htmlentities(addslashes($value));
+	if(!get_magic_quotes_gpc())
+		$value = addslashes($value);
+	$value = htmlentities($value);
 	return $value;
 }
 
@@ -58,6 +60,14 @@ function ParseFormData($post, $rsa)
 
 function EditRecord($user_id, $record_name)
 {
+	//生成一个RSA实例
+	$rsa = new Crypt_RSA();
+	$key['n'] = new Math_BigInteger($_SESSION['client_public_n'], 16);
+	$key['e'] = new Math_BigInteger($_SESSION['client_public_e'], 16);
+	
+	$rsa->loadKey($key, CRYPT_RSA_PUBLIC_FORMAT_RAW);
+	$rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1);
+	
 	$query = sprintf("select name, value, encrypt from idpass_secret where user_id = %d and record = '%s'", $_SESSION['user_id'], CheckInput($record_name));
 	$result = mysql_query($query);
 	$row = mysql_fetch_array($result);
@@ -88,6 +98,28 @@ function DecryptRecord()
 		}
 	}
 }
+
+function getCookie(c_name)
+{
+	return sessionStorage.getItem(c_name);
+}
+
+function RsaDecrypt()
+{
+	var input_set = document.getElementsByTagName("input");
+	var rsa = new RSAKey();
+	rsa.setPrivateEx(getCookie('rsa_n'), getCookie('rsa_e'), getCookie('rsa_d'), getCookie('rsa_p'), getCookie('rsa_q'), getCookie('rsa_dmp1'), getCookie('rsa_dmq1'), getCookie('rsa_coeff'));
+	for(var i = 0; i < input_set.length; i++)
+	{
+		if(input_set[i].id.indexOf("input-") == 0)
+		{
+			input_set[i].value = rsa.decrypt(input_set[i].value);
+		}
+	}
+	//在解密后再显示表单数据，否则会把解密前数据显示出来，影响美观
+	document.getElementById("new_record").style.display = "block";
+}				
+
 </script>
 <form id="new_record" class="slick-form" method="post" action="">
 	<input type="hidden" name="_post_type" value="edit_record">
@@ -97,6 +129,7 @@ function DecryptRecord()
         <a href="####" class="plus-button">+</a>
 	</div>
 STR;
+		$record_name = bin2hex($rsa->encrypt($record_name));
 		echo sprintf($template, $record_name, $record_name);
 		$items = 1;
 		do
@@ -112,11 +145,13 @@ STR;
         <a href="####" class="plus-button">+</a>
 	</div>
 STR;
+			$row[0] = bin2hex($rsa->encrypt($row[0]));
+			$row[1] = bin2hex($rsa->encrypt($row[1]));
 			echo sprintf($template, $items, $items, $row[0], ($row[2] == 1) ? 'password' : 'text', $items, $items, $row[1], ($row[2] == 1) ? 'checked=1' : '', $items, $items, $row[2], $items);
 			$items++;
 		} while($row = mysql_fetch_array($result));
 		echo '<br><input type="button" onclick="FormSubmit()" value="更新"/></form>';
-		echo '<script>DecryptRecord();</script>';
+		echo '<script>RsaDecrypt();DecryptRecord();</script>';
 	}
 }
 

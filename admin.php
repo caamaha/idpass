@@ -16,6 +16,7 @@ if($_GET['type'] == "clear")
 						username VARCHAR(255),
 						password mediumtext,
 						salt VARCHAR(8),
+						prio INT,
 						PRIMARY KEY(id)) DEFAULT CHARSET=utf8";
 	$result = mysql_query($query);
 	echo $query . '   ' .$result . '<br>';
