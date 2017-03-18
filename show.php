@@ -1,16 +1,12 @@
 <?php
 
-require_once('Crypt/RSA.php');
-
 function GetRecords($user_id, $is_encrypt = 1)
-{
-	//生成一个RSA实例
-	$rsa = new Crypt_RSA();
-	$key['n'] = new Math_BigInteger($_SESSION['client_public_n'], 16);
-	$key['e'] = new Math_BigInteger($_SESSION['client_public_e'], 16);
-	
-	$rsa->loadKey($key, CRYPT_RSA_PUBLIC_FORMAT_RAW);
-	$rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1);
+{	
+	//生成aes实例
+	$aes = new Crypt_AES(CRYPT_AES_MODE_CBC);
+	$aes->setKeyLength(256);
+	$aes->setKey($_SESSION['aeskey']);
+	$aes->setIV('1234567812345678');
 	
 	//获取用户名
 	$query = "select * from idpass_users where id = '$user_id'";
@@ -33,7 +29,7 @@ function GetRecords($user_id, $is_encrypt = 1)
 		{
 			$record_name = $records_row[0];
 			if($is_encrypt)
-				$one_record = array(bin2hex($rsa->encrypt($record_name)));
+				$one_record = array(base64_encode($aes->encrypt($record_name)));
 			else
 				$one_record = array($record_name);
 			
@@ -46,8 +42,8 @@ function GetRecords($user_id, $is_encrypt = 1)
 				{
 					if($is_encrypt)
 					{
-						$row[0] = bin2hex($rsa->encrypt($row[0]));
-						$row[1] = bin2hex($rsa->encrypt($row[1]));
+						$row[0] = base64_encode($aes->encrypt($row[0]));
+						$row[1] = base64_encode($aes->encrypt($row[1]));
 					}
 					array_push($one_record, $row[0], $row[1], $row[2]);
 				} while($row = mysql_fetch_array($result));
@@ -83,31 +79,27 @@ function DecryptValue(val)
 	return CryptoJS.AES.decrypt(val.toString(), key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8);;
 }
 
-function getCookie(c_name)
+function DecryptFirst()
 {
-	return sessionStorage.getItem(c_name);
-}
-
-function RsaDecrypt()
-{
-	var rsa_set = document.getElementsByTagName("label");
-	var rsa = new RSAKey();
-	rsa.setPrivateEx(getCookie('rsa_n'), getCookie('rsa_e'), getCookie('rsa_d'), getCookie('rsa_p'), getCookie('rsa_q'), getCookie('rsa_dmp1'), getCookie('rsa_dmq1'), getCookie('rsa_coeff'));
-	for(var i = 0; i < rsa_set.length; i++)
+	document.getElementById("accordion").style.display = "none";
+	var encrypted_set = document.getElementsByTagName("label");
+	var key = CryptoJS.enc.Utf8.parse(sessionStorage.getItem('public_aes_key')); 
+	var iv  = CryptoJS.enc.Utf8.parse('1234567812345678'); 
+	for(var i = 0; i < encrypted_set.length; i++)
 	{
-		if(rsa_set[i].getAttribute("name").indexOf("rsa") == 0)
+		if(encrypted_set[i].getAttribute("name").indexOf("aes") == 0)
 		{
-			rsa_set[i].innerHTML = rsa.decrypt(rsa_set[i].innerHTML);
+			encrypted_set[i].innerHTML = CryptoJS.AES.decrypt(encrypted_set[i].innerHTML, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8);
 		}
 	}
-	rsa_set = document.getElementsByTagName("a");
-	for(var i = 0; i < rsa_set.length; i++)
+	encrypted_set = document.getElementsByTagName("a");
+	for(var i = 0; i < encrypted_set.length; i++)
 	{
-		if(rsa_set[i].getAttribute("name") != null)
+		if(encrypted_set[i].getAttribute("name") != null)
 		{
-			if(rsa_set[i].getAttribute("name").indexOf("rsa") == 0)
+			if(encrypted_set[i].getAttribute("name").indexOf("aes") == 0)
 			{
-				rsa_set[i].innerHTML = rsa.decrypt(rsa_set[i].innerHTML);
+				encrypted_set[i].innerHTML = CryptoJS.AES.decrypt(encrypted_set[i].innerHTML, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8);
 			}
 		}
 	}
@@ -121,13 +113,13 @@ STR;
 	
 	foreach($records as $record)
 	{
-		$txt .= '<li><div class="link"><label name="rsa">' . $record[0] . '</label><a href="####" name="delete_record">删除</a><a href="####" name="edit">编辑</a></div>';
+		$txt .= '<li><div class="link"><label name="aes">' . $record[0] . '</label><a href="####" name="delete_record">删除</a><a href="####" name="edit">编辑</a></div>';
 		$txt .= '<ul class="submenu"><table>';
 		$lines = (count($record) - 1) / 3;
 		for($i = 1; $i <= $lines; $i++)
 		{
 			$txt .= '<tr>';
-			$txt .= sprintf('<td ><a href="####" name="rsa">%s</a></td><td><a href="####" encrypted="%d" name="rsa">%s</a></td>', $record[$i*3-2], $record[$i*3], $record[$i*3-1]);
+			$txt .= sprintf('<td ><a href="####" name="aes">%s</a></td><td><a href="####" encrypted="%d" name="aes">%s</a></td>', $record[$i*3-2], $record[$i*3], $record[$i*3-1]);
 			$txt .= '</tr>';
 		}
 		$txt .= '</table></ul></li>';
@@ -138,9 +130,9 @@ STR;
 <button id="cpbtn" hidden></button>
 <script src="js/show.js"></script>
 <script>
-	RsaDecrypt();
+	DecryptFirst();
 	$(document).ready(function(){
-		$("#accordion").on("click", "a[name='rsa']", function(){
+		$("#accordion").on("click", "a[name='aes']", function(){
 			if($(this).attr("encrypted") == "1")
 			{
 				$(this).text(DecryptValue($(this).text()));

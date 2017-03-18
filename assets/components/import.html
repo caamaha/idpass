@@ -1,0 +1,9 @@
+<h2>输入用于解密待导入文件的用户名和密码</h2>
+<form id="import_record" class="slick-form" method="post" action="import.php" onkeydown="SubmitByEnter();" enctype="multipart/form-data">
+	<input type="hidden" name="_post_type" value="import_record">
+	<input type="text" id="username" name="username" class="placeholder" placeholder="用户名" autocomplete="off" autofocus="autofocus" tabindex="1"/>
+	<input style="display:none">
+	<input type="password" id="password" name="password" class="placeholder" placeholder="密　码" autocomplete="off" tabindex="2"/><br>
+	<input type="file" name="path" id="path" /><br>
+	<input type="button" onclick="SubmitByEnter()" value="导入" tabindex="4"/>
+</form>

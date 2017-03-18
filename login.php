@@ -22,6 +22,7 @@ function FormSubmit(type)
 	sessionStorage.setItem('aes_key_valid', 0);
 	var rsa = new RSAKey();
 	rsa.setPublic(document.getElementById('server_public_n').value, document.getElementById('server_public_e').value);
+	document.getElementById('username').value = rsa.encrypt(document.getElementById('username').value);
 	document.getElementById('password').value = rsa.encrypt(document.getElementById('password').value);
 	if(type == 1)
 	{
@@ -79,7 +80,7 @@ function SessionDestroy()
 
 function Login($rsa)
 {
-	$user_name = addslashes(stripslashes($_POST['username']));
+	$user_name = addslashes(stripslashes(rsa_decrypt($rsa, $_POST['username'])));
 	if($user_name == '')
 	{
 		echo "<h1>用户名不能为空<h1>";
@@ -118,7 +119,7 @@ function Login($rsa)
 
 function Register($rsa)
 {
-	$user_name = addslashes(stripslashes(str_replace(" ", "", $_POST['username'])));
+	$user_name = addslashes(stripslashes(str_replace(" ", "", rsa_decrypt($rsa, $_POST['username']))));
 	if($user_name == '')
 	{
 		echo "<h1>用户名不能为空<h1>";
@@ -174,11 +175,11 @@ function Register($rsa)
 
 if($_POST['type'] == 'login')
 {	
-	Login($rsa);
+	Login($rsa_decrypt);
 }
 elseif($_POST['type'] == 'register')
 {
-	Register($rsa);
+	Register($rsa_decrypt);
 }
 else
 {

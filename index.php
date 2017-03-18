@@ -68,6 +68,22 @@ function LogOut()
     }
     location.href='login.php';
 }
+function getStore(c_name)
+{
+	return sessionStorage.getItem(c_name);
+}
+//解密双方使用的AES密钥
+function DescryptAESKey()
+{
+	var rsa = new RSAKey();
+	rsa.setPrivateEx(getStore('rsa_n'), getStore('rsa_e'), getStore('rsa_d'), getStore('rsa_p'), getStore('rsa_q'), getStore('rsa_dmp1'), getStore('rsa_dmq1'), getStore('rsa_coeff'));
+	sessionStorage.setItem('public_aes_key', rsa.decrypt(document.getElementById('public_aes_key').value));
+	if(getStore('public_aes_key').length != 32)
+	{
+		location.href='login.php';
+	}
+}
+
 </script>
 <script>
 	var form_items = 4;
@@ -132,6 +148,20 @@ function LogOut()
 require_once("load.php");
 $arr = user_shell($_SESSION['user_id'] , $_SESSION['user_shell']);
 user_mktime($_SESSION['times']);
+
+//输出公钥到浏览器
+echo '<input type="hidden" id="publickey_e" value="' . $_SESSION['publickey']['e']. '">';
+echo '<input type="hidden" id="publickey_n" value="' . $_SESSION['publickey']['n']. '">';
+
+//输出使用浏览器生成的公钥加密后的AES钥匙
+$rsa_encrypt = new Crypt_RSA();
+$key['n'] = new Math_BigInteger($_SESSION['client_public_n'], 16);
+$key['e'] = new Math_BigInteger($_SESSION['client_public_e'], 16);
+$rsa_encrypt->loadKey($key, CRYPT_RSA_PUBLIC_FORMAT_RAW);
+$rsa_encrypt->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1);
+$encrypted_key = bin2hex($rsa_encrypt->encrypt($_SESSION['aeskey']));
+echo '<input type="hidden" id="public_aes_key" value="' . $encrypted_key. '">';
+
 ?>
 
 
@@ -150,12 +180,12 @@ user_mktime($_SESSION['times']);
 
 	<div id="topside">
 		<div class="pages">
-			<div class="menu-menu-1-container">
-			<ul id="menu-menu-1" class="menu"><li id="menu-item-29" class="menu-item menu-item-type-custom menu-item-object-custom current-menu-item menu-item-29"><a href="index.php">首页</a></li>
-				<li id="menu-item-41" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-41"><a href="export.php" target="_blank">导出</a></li>
-				<li id="menu-item-42" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-42"><a href="javascript:LogOut();">注销</a></li>
-				<li id="menu-item-28" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-28"><a href="index.php">关于</a></li>
-			</ul></div></div> <!--/menu-->
+			<ul class="menu"><li><a href="index.php">首页</a></li>
+				<li><a href="index.php?type=import">导入</a></li>
+				<li><a href="export.php" target="_blank">导出</a></li>
+				<li><a href="javascript:LogOut();">注销</a></li>
+				<li><a href="index.php">关于</a></li>
+			</ul></div> <!--/menu-->
 
 		<div id="searchform">
 			<form role="search" method="get" action="">
@@ -169,15 +199,13 @@ user_mktime($_SESSION['times']);
 
 	<div id="content" style="min-height:917px">
 		<div class="post">
+
 <?php
-//输出公钥到浏览器
-echo '<input type="hidden" id="publickey_e" value="' . $_SESSION['publickey']['e']. '">';
-echo '<input type="hidden" id="publickey_n" value="' . $_SESSION['publickey']['n']. '">';
 if($_POST['_post_type'] == "new_record")
 {
 	require_once('edit.php');
 	
-	$form_data = ParseFormData($_POST, $rsa);
+	$form_data = ParseFormData($_POST, $rsa_decrypt);
 	
 	//把表单内容存入数据库中;
 	//查询表单是否已存在
@@ -215,8 +243,7 @@ else if($_POST['_post_type'] == "edit_record")
 {
 	require_once('edit.php');
 	
-	
-	$form_data = ParseFormData($_POST, $rsa);
+	$form_data = ParseFormData($_POST, $rsa_decrypt);
 	
 	if(!$form_data)
 	{
@@ -224,6 +251,8 @@ else if($_POST['_post_type'] == "edit_record")
 	}
 	
 	//检查原有表单是否存在
+	$_POST['old_name'] = $aes->decrypt(base64_decode($_POST['old_name'])); 
+	
 	$query = sprintf("select * from idpass_secret where user_id = %d and record = '%s'", $_SESSION['user_id'], $_POST['old_name']);
 	$result = mysql_query($query);
 	$row = mysql_fetch_array($result);
@@ -279,16 +308,38 @@ elseif($_GET['type'] == "edit")
 {
 	//编辑记录
 	require_once("edit.php");
-	EditRecord($_SESSION['user_id'], rsa_decrypt($rsa, urldecode($_GET['name'])));
+	EditRecord($_SESSION['user_id'], rsa_decrypt($rsa_decrypt, urldecode($_GET['name'])));
 }
 elseif($_GET['type'] == "deleterecord")
 {
 	//删除记录
-	$record_name = htmlentities(addslashes(rsa_decrypt($rsa, urldecode($_GET['name']))));
+	$record_name = htmlentities(addslashes(rsa_decrypt($rsa_decrypt, urldecode($_GET['name']))));
 	$query = sprintf("delete from idpass_secret where user_id = %d and record = '%s'", $_SESSION['user_id'], $record_name);
 	mysql_query($query);
 	echo '<script>self.location="?type=show";</script>';
 	exit;
+}
+elseif($_GET['type'] == "import")
+{
+	//导入记录
+	include('assets/components/import.html');
+	echo <<<STR
+<script>
+function SubmitByEnter()
+{
+    if(event.keyCode == 13)
+    {
+       	//根据用户信息生成AES密钥
+		document.getElementById('password').value = CryptoJS.MD5(document.getElementById("username").value + document.getElementById("password").value + "3.141592653589793238462643383");
+		var rsa = new RSAKey();
+		rsa.setPublic(document.getElementById('publickey_n').value, document.getElementById('publickey_e').value);
+		document.getElementById('username').value = "";
+		document.getElementById('password').value = rsa.encrypt(document.getElementById('password').value);
+		document.getElementById('import_record').submit();
+    }
+}
+</script>
+STR;
 }
 elseif($_GET['s'])
 {
@@ -327,6 +378,7 @@ clipboard.on('success', function(e) {
 clipboard.on('error', function(e) {
 	console.log(e);
 });
+DescryptAESKey();
 </script>
 </body>
 </html>

@@ -6,6 +6,7 @@ set_include_path(get_include_path() . PATH_SEPARATOR . 'lib/random_compat-2.0.7/
 
 require_once('config.php');
 require_once('Crypt/RSA.php');
+require_once('Crypt/AES.php');
 require_once('random.php');
 
 header("Content-type: text/html; charset=utf-8");
@@ -26,23 +27,12 @@ function rsa_decrypt($rsa, $msg)
 	return $rsa->decrypt($s->toBytes());
 }
 
-//AES加密函数
-function aes_encrypt($data, $key, $iv = null){
-	return base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $key, $data, MCRYPT_MODE_CBC, $iv));
-}
-
-//AES解密函数
-function aes_decrypt($data, $key, $iv = null){
-	return mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $key, base64_decode($data), MCRYPT_MODE_CBC, $iv);
-}
-
 //开启Session设置
 session_start();
 
 if(empty($_SESSION['privatekey']))
 {
 	//生成一对RSA钥匙
-	define('CRYPT_RSA_MODE', CRYPT_RSA_MODE_INTERNAL);
 	$rsa = new Crypt_RSA();
 	$rsa->setPublicKeyFormat(CRYPT_RSA_PUBLIC_FORMAT_RAW);
 	$key = $rsa->createKey(512);
@@ -53,12 +43,21 @@ if(empty($_SESSION['privatekey']))
 	$_SESSION['privatekey'] = $key['privatekey'];
 	$_SESSION['publickey']['e'] = $e->toHex();
 	$_SESSION['publickey']['n'] = $n->toHex();
+	
+	//生成AES钥匙
+	$_SESSION['aeskey'] = md5((random_bytes(8)));
 }
 
 //生成rsa实例
-$rsa = new Crypt_RSA();
-$rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1);
-$rsa->loadKey($_SESSION['privatekey'], CRYPT_RSA_PRIVATE_FORMAT_PKCS1);
+$rsa_decrypt = new Crypt_RSA();
+$rsa_decrypt->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1);
+$rsa_decrypt->loadKey($_SESSION['privatekey'], CRYPT_RSA_PRIVATE_FORMAT_PKCS1);
+
+//生成aes实例
+$aes = new Crypt_AES(CRYPT_AES_MODE_CBC);
+$aes->setKeyLength(256);
+$aes->setKey($_SESSION['aeskey']);
+$aes->setIV('1234567812345678');
 
 //连接数据库
 $conn = mysql_connect(DB_HOST, DB_USER, DB_PASSWORD);
@@ -89,8 +88,8 @@ function user_shell($user_id, $shell)
 	}
 	else
 	{
-		echo "无权访问，正跳转到登陆页面<br>";
-		echo '<meta http-equiv="refresh" content="1;URL=login.php">';
+		//无权访问
+		echo '<meta http-equiv="refresh" content="0;URL=login.php">';
 		exit();
 	}
 }
@@ -103,8 +102,7 @@ function user_mktime($online_time)
 	if($new_time - $online_time > '30000')
 	{
 		session_destroy();
-		echo "登录超时，正跳转到登陆页面";
-		echo '<meta http-equiv="refresh" content="1;URL=login.php">';
+		echo '<meta http-equiv="refresh" content="0;URL=login.php">';
 	}
 	else
 	{
