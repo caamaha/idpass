@@ -131,6 +131,16 @@
 	color: #FFF;
 }
 
+.submenu a[encrypted="1"]:hover {
+	background: #b63b4d;
+	color: #b63b4d;
+}
+
+.submenu a[encrypted="1"]{
+	background: #2B2B2B;
+	color: #2B2B2B;
+}
+
 table {
 	width: 100%;
 }

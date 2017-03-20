@@ -10,6 +10,7 @@ require_once('Crypt/AES.php');
 require_once('random.php');
 
 header("Content-type: text/html; charset=utf-8");
+// header("Expires: Mon, 26 Jul 1970 05:00:00 GMT");
 
 //设置session保存路径
 $savePath =  getcwd() . '/session';
@@ -28,7 +29,12 @@ function rsa_decrypt($rsa, $msg)
 }
 
 //开启Session设置
+ini_set("session.use_trans_sid", 0);
+ini_set("session.use_cookies", 1);
+ini_set("session.use_only_cookies", 1);
 session_start();
+session_regenerate_id(true);
+
 
 if(empty($_SESSION['privatekey']))
 {

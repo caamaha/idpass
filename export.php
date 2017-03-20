@@ -7,7 +7,7 @@ require_once("lib/php-archive/src/Zip.php");
 
 function ExportSecret($user_id)
 {
-	$records = GetRecords($user_id, 0);
+	$records = GetRecords($user_id);
 	if(!$records)
 	{
 		echo '<h1>无记录</h1>';

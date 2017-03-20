@@ -105,45 +105,49 @@ function DescryptAESKey()
 			$("#new_record").remove();
 		});
 
-		//点击超链接时编码URL
-		$("a[name!=delete_record]").on("click", function(){
-			event.preventDefault();
-			location.href = encodeURI($(this).attr("href"));
-		});
-
-		//点击复制文字时
-		$(".cpbtn").on("click", function(){
-			if($(this).attr("encrypted") == "1")
-			{
-				if(sessionStorage.getItem('aes_key_valid') != 1)
-				{
-					location.href='login.php';
-					return;
-				}
-				var key = CryptoJS.enc.Utf8.parse(sessionStorage.getItem('aes_key')); 
-				var iv  = CryptoJS.enc.Utf8.parse('1234567812345678'); 
-				window._clipboard_text = CryptoJS.AES.decrypt($(this).attr("data-clipboard-text").toString(), key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8);
-			}
-			else
-			{
-				window._clipboard_text = $(this).attr("data-clipboard-text");
-			}
-			$("#cpbtn").click();
-		});
-
 		//点击加密复选框时动态改变输入框类型
 		$("#new_record").on("click", "[type=checkbox]", function(){
 			
 			$(this).val($(this).attr("checked") == "checked" ? 1 : 0);
 			document.getElementById($(this).parent().parent().find("[name^=value]").attr("id")).type = $(this).val() == 1 ? "password" : "text";
 		});
+
+		//搜索文本框按键事件
+// 		$("#key_word").keyup(function(){
+// 			if($(this).val().length >= 2)
+// 			{
+// 				AJAXSearch($(this).val());
+// 			}
+// 		});
 	});
+
+	//AJAX展示搜索结果
+// 	function AJAXSearch(key_word)
+// 	{
+// 		var xmlhttp;
+// 		if(window.XMLHttpRequest)	// code for IE7+, Firefox, Chrome, Opera, Safari
+// 		{
+// 			xmlhttp = new XMLHttpRequest();
+// 		}
+// 		else	// code for IE6, IE5
+// 		{
+// 			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+// 		}
+// 		xmlhttp.onreadystatechange = function()
+// 		{
+// 			if (xmlhttp.readyState == 4 && xmlhttp.status==200)
+// 			{
+// 				document.getElementById("post_holder").innerHTML = xmlhttp.responseText;
+// 			}
+// 		}
+// 		xmlhttp.open("GET", "search.php?s=" + key_word, true);
+// 		xmlhttp.send();
+// 	}
 </script>
 </head>
 
 
 <body class="home blog">
-
 <?php
 require_once("load.php");
 $arr = user_shell($_SESSION['user_id'] , $_SESSION['user_shell']);
@@ -184,12 +188,12 @@ echo '<input type="hidden" id="public_aes_key" value="' . $encrypted_key. '">';
 				<li><a href="index.php?type=import">导入</a></li>
 				<li><a href="export.php" target="_blank">导出</a></li>
 				<li><a href="javascript:LogOut();">注销</a></li>
-				<li><a href="index.php">关于</a></li>
+				<li><a href="index.php?about">关于</a></li>
 			</ul></div> <!--/menu-->
 
 		<div id="searchform">
 			<form role="search" method="get" action="">
-				<input type="text" class="searchtext" value="" name="s" title="搜索：">
+				<input type="text" class="searchtext" value="" id="key_word" name="s">
 				<input type="submit" class="searchbutton" value=" ">
 			</form>
 		</div> <!--/searchform-->
@@ -198,8 +202,7 @@ echo '<input type="hidden" id="public_aes_key" value="' . $encrypted_key. '">';
 	
 
 	<div id="content" style="min-height:917px">
-		<div class="post">
-
+		<div class="post" id="post_holder">
 <?php
 if($_POST['_post_type'] == "new_record")
 {
@@ -348,9 +351,13 @@ elseif($_GET['s'])
 	$key_word = htmlentities(addslashes($_GET['s']));
 	Search($_SESSION['user_id'], $key_word);
 }
-else 
+elseif(isset($_GET['about']))
 {
 	include('assets/components/introduction.html');
+}
+else 
+{
+	
 }
 ?>
 		</div>

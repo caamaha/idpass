@@ -13,6 +13,7 @@
 <script src="js/jsbn/rsa.js"></script>
 <script src="js/jsbn/rsa2.js"></script>
 <script src="js/crypto/rollups/md5.js"></script>
+<script src="js/crypto/rollups/sha256.js"></script>
 <script>
 function FormSubmit(type)
 {
@@ -22,6 +23,7 @@ function FormSubmit(type)
 	sessionStorage.setItem('aes_key_valid', 0);
 	var rsa = new RSAKey();
 	rsa.setPublic(document.getElementById('server_public_n').value, document.getElementById('server_public_e').value);
+	document.getElementById('password').value = CryptoJS.SHA256(document.getElementById('password').value);
 	document.getElementById('username').value = rsa.encrypt(document.getElementById('username').value);
 	document.getElementById('password').value = rsa.encrypt(document.getElementById('password').value);
 	if(type == 1)
@@ -99,6 +101,11 @@ function Login($rsa)
 		SessionDestroy();
 		return;
 	}
+	
+	//强制修改密码
+// 	$update = hash('sha256', $_POST['password'] . $row['salt']);
+// 	$query = "update idpass_users set password = '$update' where username = '$user_name'";
+// 	mysql_query($query);
 	
 	$ps = $us ? hash('sha256', $_POST['password'] . $row['salt']) == $row['password'] : false;
 	if($ps){

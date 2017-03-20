@@ -1,13 +1,34 @@
 <?php
 
-function GetRecords($user_id, $is_encrypt = 1)
+function ValidateURL($url)
+{
+	//验证URL是否合法
+	$patern = '/^(http[s]?:\/\/)?'.
+			'(([0-9]{1,3}\.){3}[0-9]{1,3}'. // IP形式的URL- 199.194.52.184
+			'|'. // 允许IP和DOMAIN（域名）
+			'([0-9a-z_!~*\'()-]+\.)*'. // 三级域验证- www.
+			'([0-9a-z][0-9a-z-]{0,61})?[0-9a-z]\.'. // 二级域验证
+			'[a-z]{2,6})'. // 顶级域验证.com or .museum
+			'(:[0-9]{1,4})?'. // 端口- :80
+			'((\/\?)|'. // 如果含有文件对文件部分进行校验
+			'(\/[0-9a-zA-Z_!~\*\'\(\)\.;\?:@&=\+\$,%#-\/]*)?)$' .
+			'/';
+	if(!preg_match($patern, $url)) {
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+function AESEncrypt($aes, $msg)
+{
+	return base64_encode($aes->encrypt($msg));
+}
+
+function GetRecords($user_id)
 {	
-	//生成aes实例
-	$aes = new Crypt_AES(CRYPT_AES_MODE_CBC);
-	$aes->setKeyLength(256);
-	$aes->setKey($_SESSION['aeskey']);
-	$aes->setIV('1234567812345678');
-	
 	//获取用户名
 	$query = "select * from idpass_users where id = '$user_id'";
 	$result = mysql_query($query);
@@ -28,10 +49,7 @@ function GetRecords($user_id, $is_encrypt = 1)
 		do
 		{
 			$record_name = $records_row[0];
-			if($is_encrypt)
-				$one_record = array(base64_encode($aes->encrypt($record_name)));
-			else
-				$one_record = array($record_name);
+			$one_record = array($record_name);
 			
 			$query = sprintf("select name, value, encrypt from idpass_secret where user_id = %d and record = '%s'", $user_id, $record_name);
 			$result = mysql_query($query);
@@ -40,11 +58,6 @@ function GetRecords($user_id, $is_encrypt = 1)
 			{
 				do
 				{
-					if($is_encrypt)
-					{
-						$row[0] = base64_encode($aes->encrypt($row[0]));
-						$row[1] = base64_encode($aes->encrypt($row[1]));
-					}
 					array_push($one_record, $row[0], $row[1], $row[2]);
 				} while($row = mysql_fetch_array($result));
 			}
@@ -57,6 +70,12 @@ function GetRecords($user_id, $is_encrypt = 1)
 
 function ShowRecords($user_id)
 {
+	//生成aes实例
+	$aes = new Crypt_AES(CRYPT_AES_MODE_CBC);
+	$aes->setKeyLength(256);
+	$aes->setKey($_SESSION['aeskey']);
+	$aes->setIV('1234567812345678');
+	
 	//显示所有记录
 	$records = GetRecords($user_id);
 	if(!$records)
@@ -100,6 +119,10 @@ function DecryptFirst()
 			if(encrypted_set[i].getAttribute("name").indexOf("aes") == 0)
 			{
 				encrypted_set[i].innerHTML = CryptoJS.AES.decrypt(encrypted_set[i].innerHTML, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8);
+				if(encrypted_set[i].getAttribute("href").indexOf("####") != 0)
+				{
+					encrypted_set[i].setAttribute("href", CryptoJS.AES.decrypt(encrypted_set[i].getAttribute("href"), key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8));
+				}
 			}
 		}
 	}
@@ -113,13 +136,21 @@ STR;
 	
 	foreach($records as $record)
 	{
-		$txt .= '<li><div class="link"><label name="aes">' . $record[0] . '</label><a href="####" name="delete_record">删除</a><a href="####" name="edit">编辑</a></div>';
+		$txt .= '<li><div class="link"><label name="aes">' . AESEncrypt($aes, $record[0]) . '</label><a href="####" name="delete_record">删除</a><a href="####" name="edit">编辑</a></div>';
 		$txt .= '<ul class="submenu"><table>';
 		$lines = (count($record) - 1) / 3;
 		for($i = 1; $i <= $lines; $i++)
 		{
 			$txt .= '<tr>';
-			$txt .= sprintf('<td ><a href="####" name="aes">%s</a></td><td><a href="####" encrypted="%d" name="aes">%s</a></td>', $record[$i*3-2], $record[$i*3], $record[$i*3-1]);
+			if(ValidateURL($record[$i*3-1]))
+			{
+				//判断值是否为合法URL形式
+				$txt .= sprintf('<td ><a href="####" name="aes">%s</a></td><td><a href="%s" encrypted="%d" name="aes" target="_blank">%s</a></td>', AESEncrypt($aes, $record[$i*3-2]), AESEncrypt($aes, $record[$i*3-1]), $record[$i*3], AESEncrypt($aes, $record[$i*3-1]));
+			}
+			else
+			{
+				$txt .= sprintf('<td ><a href="####" name="aes">%s</a></td><td><a href="####" encrypted="%d" name="aes">%s</a></td>', AESEncrypt($aes, $record[$i*3-2]), $record[$i*3], AESEncrypt($aes, $record[$i*3-1]));				
+			}
 			$txt .= '</tr>';
 		}
 		$txt .= '</table></ul></li>';
@@ -133,6 +164,11 @@ STR;
 	DecryptFirst();
 	$(document).ready(function(){
 		$("#accordion").on("click", "a[name='aes']", function(){
+			//点击解密文字并复制文字
+			if($(this).attr("href").indexOf("####") != 0)
+			{
+				return;
+			}
 			if($(this).attr("encrypted") == "1")
 			{
 				$(this).text(DecryptValue($(this).text()));
