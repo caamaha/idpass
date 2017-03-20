@@ -32,7 +32,6 @@ ini_set("session.use_trans_sid", 0);
 ini_set("session.use_cookies", 1);
 ini_set("session.use_only_cookies", 1);
 session_start();
-session_regenerate_id(true);
 
 
 if(empty($_SESSION['privatekey']))
@@ -103,8 +102,13 @@ function user_shell($user_id, $shell)
 function user_mktime($online_time)
 {
 	$new_time = mktime();
-	//TODO:更改超时时间
-	if($new_time - $online_time > '30000')
+	if($new_time - $online_time > '10')
+	{
+		//每过10秒重新生成session id
+		session_regenerate_id(true);
+	}
+	
+	if($new_time - $online_time > '3600')
 	{
 		session_destroy();
 		echo '<meta http-equiv="refresh" content="0;URL=login.php">';

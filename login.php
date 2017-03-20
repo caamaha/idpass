@@ -193,9 +193,7 @@ elseif($_POST['type'] == 'register')
 else
 {
 	echo '<h1> 请输入登陆或注册信息</h1>';
-}
-?>
-
+	echo <<<STR
 <div>
 	<form id="slick-login" action="" method="post" onkeydown="SubmitByEnter();">
 		<input type="hidden" id="client_public_n" name="client_public_n" value="">
@@ -217,5 +215,8 @@ else
         }
     }
 </script>
+STR;
+}
+?>
 </body>
 </html>

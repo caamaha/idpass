@@ -42,13 +42,15 @@ function CacheRecords($user_id)
 	return $content;
 }
 
-function CheckKeyword($key_word, $text)
+function CheckKeyword($key_words, $text)
 {
 	//检查记录是否包含关键字
-	if(preg_match("/" . $key_word . "/i", $text))
-		return true;
-	else
-		return false;
+	foreach($key_words as $key_word)
+	{
+		if(!preg_match("/" . $key_word . "/i", $text))
+			return false;
+	}
+	return true;
 }
 
 function Search($user_id, $key_word)
@@ -69,7 +71,6 @@ function Search($user_id, $key_word)
 		$content = unserialize(file_get_contents('cache/' . $user_id . '_srh'));
 	}
 	
-	
 	if(count($content) == 0)
 	{
 		echo '<h1>无记录</h1>';
@@ -82,9 +83,36 @@ function Search($user_id, $key_word)
 <div class="show-holder"><ul id="accordion" class="accordion" display="none">
 STR;
 	
+	//解析$key_word
+	$key_word = trim($key_word);
+	$key_words = array();
+	$start = 0;
+	$length = 0;
+	for($i = 0; $i < strlen($key_word); $i++)
+	{
+		if($key_word[$i] == ' ' && $length > 0 )
+		{
+			array_push($key_words, substr($key_word, $start, $length));
+			$start = $i+1;
+			$length = 0;
+		}
+		else if($key_word[$i] != ' ' && $i == strlen($key_word) - 1)
+		{
+			array_push($key_words, substr($key_word, $start, $length+1));
+		}
+		else if($key_word[$i] != ' ')
+		{
+			$length++;
+		}
+		else
+		{
+			$start = $i+1;
+		}
+	}
+	
 	foreach($content as $item)
 	{
-		if(!CheckKeyword($key_word, $item[1]))
+		if(!CheckKeyword($key_words, $item[1]))
 			continue;
 		$txt .= '<li><div class="link"><label name="aes">' . AESEncrypt($aes, $item[0][0]) . '</label><a href="####" name="delete_record">删除</a><a href="####" name="edit">编辑</a></div>';
 		$txt .= '<ul class="submenu"><table>';

@@ -122,37 +122,46 @@ function DescryptAESKey()
 		$("#key_word").keyup(function(){
 			if($(this).val().length >= 1)
 			{
-				AJAXSearch($(this).val());
+				AjaxDelay();
 			}
 		});
 	});
 
 	//AJAX展示搜索结果
-	function AJAXSearch(key_word)
+	var ajaxTimestamp = 0;
+	var delayTime = 200;
+	function AjaxDelay()
 	{
+		ajaxTime = new Date().getTime();
+		setTimeout('AjaxSearch()', delayTime);
+	}
+	function AjaxSearch()
+	{
+		var currTime = new Date().getTime();
+		if(currTime - ajaxTime < delayTime - 10)
+			return;
 		var xmlhttp;
-		if(window.XMLHttpRequest)	// code for IE7+, Firefox, Chrome, Opera, Safari
-		{
-			xmlhttp = new XMLHttpRequest();
-		}
-		else	// code for IE6, IE5
-		{
-			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-		}
-		xmlhttp.onreadystatechange = function()
-		{
-			if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
-			{
-				document.getElementById("post_holder").innerHTML = xmlhttp.responseText;
-				if(document.getElementById("accordion"))
-				{
-					DynamicBind();
-					DecryptFirst();
-				}
-		  	}
-		}
-		xmlhttp.open("GET", "search_if.php?s=" + key_word, true);
+		xmlhttp = new XMLHttpRequest();
+// 		xmlhttp.onreadystatechange = function()
+// 		{
+// 			if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
+// 			{
+// 				document.getElementById("post_holder").innerHTML = xmlhttp.responseText;
+// 				if(document.getElementById("accordion"))
+// 				{
+// 					DynamicBind();
+// 					DecryptFirst();
+// 				}
+// 		  	}
+// 		}
+		xmlhttp.open("GET", "search_if.php?s=" + document.getElementById('key_word').value, false);
 		xmlhttp.send();
+		document.getElementById("post_holder").innerHTML = xmlhttp.responseText;
+		if(document.getElementById("accordion"))
+		{
+			DynamicBind();
+			DecryptFirst();
+		}
 	}
 </script>
 <script>
@@ -171,7 +180,6 @@ function DecryptValue(val)
 function DecryptFirst()
 {
 	//在解密前隐藏表单数据
-	document.getElementById("accordion").style.visibility = "hidden";
 	var encrypted_set = document.getElementsByTagName("label");
 	var key = CryptoJS.enc.Utf8.parse(sessionStorage.getItem('public_aes_key')); 
 	var iv  = CryptoJS.enc.Utf8.parse('1234567812345678'); 
@@ -198,7 +206,7 @@ function DecryptFirst()
 		}
 	}
 	//在解密后再显示表单数据，否则会把解密前数据显示出来，影响美观．利用setTimeout隐藏撕裂效果
-	setTimeout('document.getElementById("accordion").style.visibility = "visible"', 100);
+	document.getElementById("accordion").style.visibility = "visible";
 }
 $(document).ready(function(){
 	$("#decrypt").click(function(){
