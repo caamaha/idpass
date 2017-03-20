@@ -23,9 +23,8 @@ function CacheRecords($user_id)
 			if($record[$i*3] == 0)
 			{
 				$text .= $record[$i*3-2] . ' ' . $record[$i*3-1] . ' ';
-		
 				//组合拼音字母
-				$text .= CUtf8_PY::encode($record[$i*3-1], 'all') . ' ';
+				$text .= CUtf8_PY::encode($record[$i*3-2], 'all') . ' ' . CUtf8_PY::encode($record[$i*3-1], 'all') . ' ';
 			}
 		}
 		
