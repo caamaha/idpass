@@ -85,51 +85,6 @@ function ShowRecords($user_id)
 	}
 	
 	echo <<<STR
-<script>
-function DecryptValue(val)
-{
-	if(sessionStorage.getItem('aes_key_valid') != 1)
-	{
-		location.href='login.php';
-		return;
-	}
-	var key = CryptoJS.enc.Utf8.parse(sessionStorage.getItem('aes_key')); 
-	var iv  = CryptoJS.enc.Utf8.parse('1234567812345678'); 
-	return CryptoJS.AES.decrypt(val.toString(), key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8);;
-}
-
-function DecryptFirst()
-{
-	document.getElementById("accordion").style.display = "none";
-	var encrypted_set = document.getElementsByTagName("label");
-	var key = CryptoJS.enc.Utf8.parse(sessionStorage.getItem('public_aes_key')); 
-	var iv  = CryptoJS.enc.Utf8.parse('1234567812345678'); 
-	for(var i = 0; i < encrypted_set.length; i++)
-	{
-		if(encrypted_set[i].getAttribute("name").indexOf("aes") == 0)
-		{
-			encrypted_set[i].innerHTML = CryptoJS.AES.decrypt(encrypted_set[i].innerHTML, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8);
-		}
-	}
-	encrypted_set = document.getElementsByTagName("a");
-	for(var i = 0; i < encrypted_set.length; i++)
-	{
-		if(encrypted_set[i].getAttribute("name") != null)
-		{
-			if(encrypted_set[i].getAttribute("name").indexOf("aes") == 0)
-			{
-				encrypted_set[i].innerHTML = CryptoJS.AES.decrypt(encrypted_set[i].innerHTML, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8);
-				if(encrypted_set[i].getAttribute("href").indexOf("####") != 0)
-				{
-					encrypted_set[i].setAttribute("href", CryptoJS.AES.decrypt(encrypted_set[i].getAttribute("href"), key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8));
-				}
-			}
-		}
-	}
-	//在解密后再显示表单数据，否则会把解密前数据显示出来，影响美观
-	document.getElementById("accordion").style.display = "block";
-}
-</script>
 <link rel="stylesheet" href="css/show.css" type="text/css" />
 <div class="show-holder"><ul id="accordion" class="accordion">
 STR;
@@ -156,49 +111,7 @@ STR;
 		$txt .= '</table></ul></li>';
 	}
 	echo $txt;
-	echo <<<STR
-</div></ul>
-<button id="cpbtn" hidden></button>
-<script src="js/show.js"></script>
-<script>
-	DecryptFirst();
-	$(document).ready(function(){
-		$("#accordion").on("click", "a[name='aes']", function(){
-			//点击解密文字并复制文字
-			if($(this).attr("href").indexOf("####") != 0)
-			{
-				return;
-			}
-			if($(this).attr("encrypted") == "1")
-			{
-				$(this).text(DecryptValue($(this).text()));
-				$(this).attr("encrypted", "0");
-			}
-			window._clipboard_text = $(this).text();
-			$("#cpbtn").click();
-		});
-		$("#accordion").on("click", "a[name='edit']", function(){
-			//编辑记录
-			name = $(this).parent().children("label").text();
-			var rsa = new RSAKey();
-			rsa.setPublic(document.getElementById('publickey_n').value, document.getElementById('publickey_e').value);
-			location.href='index.php?type=edit&name=' + encodeURI(rsa.encrypt(name));
-		});
-		$("#accordion").on("click", "a[name='delete_record']", function(){
-			//删除记录
-			name = $(this).parent().children("label").text();
-			if(confirm("确定删除记录" + name + "?"))
-			{
-				var rsa = new RSAKey();
-				rsa.setPublic(document.getElementById('publickey_n').value, document.getElementById('publickey_e').value);
-				location.href='index.php?type=deleterecord&name=' + encodeURI(rsa.encrypt(name));
-			}
-		});
-	});
-	
-</script>
-STR;
-
+	echo '</div></ul><script>DecryptFirst();</script>';
 }
 
 ?>

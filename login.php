@@ -17,6 +17,8 @@
 <script>
 function FormSubmit(type)
 {
+	//隐藏表单
+	document.getElementById("slick-login").style.visibility = "hidden";
 	//根据用户信息生成AES密钥
 	var aes_key = CryptoJS.MD5(document.getElementById("username").value + document.getElementById("password").value + "3.141592653589793238462643383");
 	sessionStorage.setItem('aes_key', aes_key);

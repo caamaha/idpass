@@ -23,25 +23,14 @@ function ExportSecret($user_id)
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style type="text/css">
 STR;
-	$fid = fopen("export/css/style.min.css", "r");
-	$txt .= fread($fid, filesize("export/css/style.min.css"));
-	fclose($fid);
+	$txt .= file_get_contents("assets/export/css/style.min.css");
 	$txt .= <<<STR
 </style>
 <script>
 STR;
-	
-	$fid = fopen("export/js/md5.js", "r");
-	$txt .= fread($fid, filesize("export/js/md5.js"));
-	fclose($fid);
-	
-	$fid = fopen("export/js/aes.js", "r");
-	$txt .= fread($fid, filesize("export/js/aes.js"));
-	fclose($fid);
-	
-	$fid = fopen("export/js/clipboard.min.js", "r");
-	$txt .= fread($fid, filesize("export/js/clipboard.min.js"));
-	fclose($fid);
+	$txt .= file_get_contents("assets/export/js/md5.js");
+	$txt .= file_get_contents("assets/export/js/aes.js");
+	$txt .= file_get_contents("assets/export/js/clipboard.min.js");
 	
 	$txt .= <<<STR
 </script>

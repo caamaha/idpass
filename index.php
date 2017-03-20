@@ -6,6 +6,12 @@
 
 <link rel="stylesheet" type="text/css" href="css/index.css" />
 <link rel="stylesheet" type="text/css" href="css/input-field.css" />
+<!-- <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> -->
+<!-- <meta http-equiv="X-UA-Compatible" content="IE=8"> -->
+<!-- <meta http-equiv="Expires" content="0"> -->
+<!-- <meta http-equiv="Pragma" content="no-cache"> -->
+<!-- <meta http-equiv="Cache-control" content="no-cache"> -->
+<!-- <meta http-equiv="Cache" content="no-cache"> -->
 <script src="js/jquery-1.8.0.js"></script>
 <script src="js/string_format.js"></script>
 <script src="js/clipboard.min.js"></script>
@@ -113,36 +119,92 @@ function DescryptAESKey()
 		});
 
 		//搜索文本框按键事件
-// 		$("#key_word").keyup(function(){
-// 			if($(this).val().length >= 2)
-// 			{
-// 				AJAXSearch($(this).val());
-// 			}
-// 		});
+		$("#key_word").keyup(function(){
+			if($(this).val().length >= 1)
+			{
+				AJAXSearch($(this).val());
+			}
+		});
 	});
 
 	//AJAX展示搜索结果
-// 	function AJAXSearch(key_word)
-// 	{
-// 		var xmlhttp;
-// 		if(window.XMLHttpRequest)	// code for IE7+, Firefox, Chrome, Opera, Safari
-// 		{
-// 			xmlhttp = new XMLHttpRequest();
-// 		}
-// 		else	// code for IE6, IE5
-// 		{
-// 			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-// 		}
-// 		xmlhttp.onreadystatechange = function()
-// 		{
-// 			if (xmlhttp.readyState == 4 && xmlhttp.status==200)
-// 			{
-// 				document.getElementById("post_holder").innerHTML = xmlhttp.responseText;
-// 			}
-// 		}
-// 		xmlhttp.open("GET", "search.php?s=" + key_word, true);
-// 		xmlhttp.send();
-// 	}
+	function AJAXSearch(key_word)
+	{
+		var xmlhttp;
+		if(window.XMLHttpRequest)	// code for IE7+, Firefox, Chrome, Opera, Safari
+		{
+			xmlhttp = new XMLHttpRequest();
+		}
+		else	// code for IE6, IE5
+		{
+			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		xmlhttp.onreadystatechange = function()
+		{
+			if(xmlhttp.readyState == 4 && xmlhttp.status == 200)
+			{
+				document.getElementById("post_holder").innerHTML = xmlhttp.responseText;
+				if(document.getElementById("accordion"))
+				{
+					DynamicBind();
+					DecryptFirst();
+				}
+		  	}
+		}
+		xmlhttp.open("GET", "search_if.php?s=" + key_word, true);
+		xmlhttp.send();
+	}
+</script>
+<script>
+//展示记录时解密的相关函数
+function DecryptValue(val)
+{
+	if(sessionStorage.getItem('aes_key_valid') != 1)
+	{
+		location.href='login.php';
+		return;
+	}
+	var key = CryptoJS.enc.Utf8.parse(sessionStorage.getItem('aes_key'));
+	var iv  = CryptoJS.enc.Utf8.parse('1234567812345678');
+	return CryptoJS.AES.decrypt(val.toString(), key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8);;
+}
+function DecryptFirst()
+{
+	//在解密前隐藏表单数据
+	document.getElementById("accordion").style.visibility = "hidden";
+	var encrypted_set = document.getElementsByTagName("label");
+	var key = CryptoJS.enc.Utf8.parse(sessionStorage.getItem('public_aes_key')); 
+	var iv  = CryptoJS.enc.Utf8.parse('1234567812345678'); 
+	for(var i = 0; i < encrypted_set.length; i++)
+	{
+		if(encrypted_set[i].getAttribute("name").indexOf("aes") == 0)
+		{
+			encrypted_set[i].innerHTML = CryptoJS.AES.decrypt(encrypted_set[i].innerHTML, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8);
+		}
+	}
+	encrypted_set = document.getElementsByTagName("a");
+	for(var i = 0; i < encrypted_set.length; i++)
+	{
+		if(encrypted_set[i].getAttribute("name") != null)
+		{
+			if(encrypted_set[i].getAttribute("name").indexOf("aes") == 0)
+			{
+				encrypted_set[i].innerHTML = CryptoJS.AES.decrypt(encrypted_set[i].innerHTML, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8);
+				if(encrypted_set[i].getAttribute("href").indexOf("####") != 0)
+				{
+					encrypted_set[i].setAttribute("href", CryptoJS.AES.decrypt(encrypted_set[i].getAttribute("href"), key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }).toString(CryptoJS.enc.Utf8));
+				}
+			}
+		}
+	}
+	//在解密后再显示表单数据，否则会把解密前数据显示出来，影响美观．利用setTimeout隐藏撕裂效果
+	setTimeout('document.getElementById("accordion").style.visibility = "visible"', 100);
+}
+$(document).ready(function(){
+	$("#decrypt").click(function(){
+				DecryptRecords();
+			});
+});
 </script>
 </head>
 
@@ -167,7 +229,6 @@ $encrypted_key = bin2hex($rsa_encrypt->encrypt($_SESSION['aeskey']));
 echo '<input type="hidden" id="public_aes_key" value="' . $encrypted_key. '">';
 
 ?>
-
 
 <header class="header" style="min-height: 611px">
 	<div id="logo"><div class="header-logo-wrap">
@@ -240,6 +301,9 @@ if($_POST['_post_type'] == "new_record")
 				echo $query.'<br>';
 			}
 		}
+		
+		//刷新已缓存的记录
+		CacheRecords($_SESSION['user_id']);
 	}
 }
 else if($_POST['_post_type'] == "edit_record")
@@ -295,6 +359,8 @@ else if($_POST['_post_type'] == "edit_record")
 			echo $query.'<br>';
 		}
 	}
+	
+	CacheRecords($_SESSION['user_id']);
 }
 else if($_GET['type'] == "new")
 {
@@ -350,6 +416,7 @@ elseif($_GET['s'])
 	require_once('search.php');
 	$key_word = htmlentities(addslashes($_GET['s']));
 	Search($_SESSION['user_id'], $key_word);
+	echo '<script>DecryptFirst();</script>';
 }
 elseif(isset($_GET['about']))
 {
@@ -373,6 +440,7 @@ else
 	<!-- 辅助复制到粘贴板 -->
 	<button id="cpbtn" hidden></button>
 <script>
+DescryptAESKey();
 //支持复制到粘贴板
 var clipboard = new Clipboard('#cpbtn', {
 	text: function() {
@@ -385,7 +453,70 @@ clipboard.on('success', function(e) {
 clipboard.on('error', function(e) {
 	console.log(e);
 });
-DescryptAESKey();
+
+$(document).ready(function() {
+	DynamicBind();
+});
+
+function DynamicBind() {
+	//---- 动态菜单 ----
+	var Accordion = function(el, multiple) {
+		this.el = el || {};
+		this.multiple = multiple || false;
+
+		// Variables privadas
+		var links = this.el.find('.link');
+		// Evento
+		links.on('click', {el: this.el, multiple: this.multiple}, this.dropdown)
+	}
+
+	Accordion.prototype.dropdown = function(e) {
+		var $el = e.data.el;
+			$this = $(this),
+			$next = $this.next();
+
+		$next.slideToggle();
+		$this.parent().toggleClass('open');
+
+		if (!e.data.multiple) {
+			$el.find('.submenu').not($next).slideUp().parent().removeClass('open');
+		};
+	}	
+
+	var accordion = new Accordion($('#accordion'), false);
+	//----
+	$("#accordion").on("click", "a[name='aes']", function(){
+		//点击解密文字并复制文字
+		if($(this).attr("href").indexOf("####") != 0)
+		{
+			return;
+		}
+		if($(this).attr("encrypted") == "1")
+		{
+			$(this).text(DecryptValue($(this).text()));
+			$(this).attr("encrypted", "0");
+		}
+		window._clipboard_text = $(this).text();
+		$("#cpbtn").click();
+	});
+	$("#accordion").on("click", "a[name='edit']", function(){
+		//编辑记录
+		name = $(this).parent().children("label").text();
+		var rsa = new RSAKey();
+		rsa.setPublic(document.getElementById('publickey_n').value, document.getElementById('publickey_e').value);
+		location.href='index.php?type=edit&name=' + encodeURI(rsa.encrypt(name));
+	});
+	$("#accordion").on("click", "a[name='delete_record']", function(){
+		//删除记录
+		name = $(this).parent().children("label").text();
+		if(confirm("确定删除记录" + name + "?"))
+		{
+			var rsa = new RSAKey();
+			rsa.setPublic(document.getElementById('publickey_n').value, document.getElementById('publickey_e').value);
+			location.href='index.php?type=deleterecord&name=' + encodeURI(rsa.encrypt(name));
+		}
+	});
+}
 </script>
 </body>
 </html>
