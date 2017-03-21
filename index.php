@@ -6,12 +6,12 @@
 
 <link rel="stylesheet" type="text/css" href="css/index.css" />
 <link rel="stylesheet" type="text/css" href="css/input-field.css" />
-<!-- <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> -->
-<!-- <meta http-equiv="X-UA-Compatible" content="IE=8"> -->
-<!-- <meta http-equiv="Expires" content="0"> -->
-<!-- <meta http-equiv="Pragma" content="no-cache"> -->
-<!-- <meta http-equiv="Cache-control" content="no-cache"> -->
-<!-- <meta http-equiv="Cache" content="no-cache"> -->
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=8">
+<meta http-equiv="Expires" content="0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Cache-control" content="no-cache">
+<meta http-equiv="Cache" content="no-cache">
 <script src="js/jquery-1.8.0.js"></script>
 <script src="js/string_format.js"></script>
 <script src="js/clipboard.min.js"></script>
