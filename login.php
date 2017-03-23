@@ -2,10 +2,8 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>登陆</title>
+<title>登陆IDPass</title>
 <link rel="stylesheet" href="css/login.css" media="screen" type="text/css" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
 <script src="js/jsbn/jsbn.js"></script>
 <script src="js/jsbn/jsbn2.js"></script>
 <script src="js/jsbn/prng4.js"></script>
@@ -69,6 +67,8 @@ function PageLoad()
 </head>
 
 <body onload="PageLoad()">
+<div>
+	<h1> IDPass</h1>
 <?php
 require_once("load.php");
 
@@ -87,7 +87,7 @@ function Login($rsa)
 	$user_name = addslashes(stripslashes(rsa_decrypt($rsa, $_POST['username'])));
 	if($user_name == '')
 	{
-		echo "<h1>用户名不能为空<h1>";
+		echo "<p>用户名不能为空<p>";
 		SessionDestroy();
 		return;
 	}
@@ -99,7 +99,7 @@ function Login($rsa)
 	
 	if($_POST['password'] == false)
 	{
-		echo "<h1>数据校验失败<h1>";
+		echo "<p>数据校验失败<p>";
 		SessionDestroy();
 		return;
 	}
@@ -116,11 +116,11 @@ function Login($rsa)
 		$_SESSION['times'] = mktime();  //登录的时间
 		$_SESSION['client_public_n'] = $_POST['client_public_n'];	//记录浏览器生成的RSA公钥
 		$_SESSION['client_public_e'] = $_POST['client_public_e'];
-		echo "<h1>登录成功<h1>";
+		echo "<p>登录成功<p>";
 		echo '<script>sessionStorage.setItem("aes_key_valid", 1);</script>';
 		echo '<meta http-equiv="refresh" content="0;URL=index.php">';
 	}else{
-		echo "<h1>用户名或密码错误</h1>";
+		echo "<p>用户名或密码错误</p>";
 		SessionDestroy();
 		echo '<meta http-equiv="refresh" content="0;URL=login.php">';
 	}
@@ -131,14 +131,14 @@ function Register($rsa)
 	$user_name = addslashes(stripslashes(str_replace(" ", "", rsa_decrypt($rsa, $_POST['username']))));
 	if($user_name == '')
 	{
-		echo "<h1>用户名不能为空<h1>";
+		echo "<p>用户名不能为空<p>";
 		SessionDestroy();
 		return;
 	}
 	$_POST['password'] = addslashes(stripslashes(rsa_decrypt($rsa, $_POST['password'])));
 	if($_POST['password'] == false)
 	{
-		echo "<h1>数据校验失败<h1>";
+		echo "<p>数据校验失败<p>";
 		SessionDestroy();
 		return;
 	}
@@ -151,7 +151,7 @@ function Register($rsa)
 	$row = mysql_fetch_array($result);
 	if(is_array($row))
 	{
-		echo "<h1>用户已存在<h1>";
+		echo "<p>用户已存在<p>";
 		SessionDestroy();
 	}
 	else
@@ -170,13 +170,13 @@ function Register($rsa)
 			$_SESSION['client_public_n'] = $_POST['client_public_n'];	//记录浏览器生成的RSA公钥
 			$_SESSION['client_public_e'] = $_POST['client_public_e'];
 			//注册成功后转向主页
-			echo "<h1>注册成功<h1>";
+			echo "<p>注册成功<p>";
 			echo '<script>sessionStorage.setItem("aes_key_valid", 1);</script>';
 			echo '<meta http-equiv="refresh" content="0;URL=index.php">';
 		}
 		else
 		{
-			echo "<h1>注册失败<h1>";
+			echo "<p>注册失败<p>";
 			SessionDestroy();
 		}
 	}
@@ -192,9 +192,8 @@ elseif($_POST['type'] == 'register')
 }
 else
 {
-	echo '<h1> 请输入登陆或注册信息</h1>';
+	echo '<p>请输入登陆或注册信息</p>';
 	echo <<<STR
-<div>
 	<form id="slick-login" action="" method="post" onkeydown="SubmitByEnter();">
 		<input type="hidden" id="client_public_n" name="client_public_n" value="">
 		<input type="hidden" id="client_public_e" name="client_public_e" value="">
@@ -202,11 +201,10 @@ else
 		<input type="text" id="username" name="username" class="placeholder" placeholder="用户名" autocomplete="off" autofocus="autofocus" tabindex="1"/>
 		<input style="display:none">
 		<input type="password" id="password" name="password" class="placeholder" placeholder="密　码" autocomplete="off" tabindex="2"/>
-		<input type="button" onclick="FormSubmit(1)" value="登录" tabindex="3"/><br>
-		<input type="button" onclick="FormSubmit(2)" value="注册" tabindex="4"/><br>
+		<input type="button" id="btn1" onclick="FormSubmit(1)" value="登录" tabindex="3"/><br>
+		<input type="button" id="btn2" onclick="FormSubmit(2)" value="注册" tabindex="4"/><br>
 	</form>
-</div>
-<script>
+	<script>
     function SubmitByEnter()
     {
         if(event.keyCode == 13)
@@ -214,9 +212,10 @@ else
         	FormSubmit(1);
         }
     }
-</script>
+	</script>
 STR;
 }
 ?>
+</div>
 </body>
 </html>
