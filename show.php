@@ -104,8 +104,9 @@ STR;
 			}
 			else
 			{
-				$txt .= sprintf('<td ><a href="####" name="aes">%s</a></td><td><a href="####" encrypted="%d" name="aes">%s</a></td>', AESEncrypt($aes, $record[$i*3-2]), $record[$i*3], AESEncrypt($aes, $record[$i*3-1]));				
+				$txt .= sprintf('<td ><a href="####" name="aes">%s</a></td><td><a href="####" encrypted="%d" name="aes">%s</a></td>', AESEncrypt($aes, $record[$i*3-2]), $record[$i*3], AESEncrypt($aes, $record[$i*3-1]));
 			}
+			
 			$txt .= '</tr>';
 		}
 		$txt .= '</table></ul></li>';
