@@ -1,0 +1,33 @@
+<html>
+<head>
+<meta charset="utf-8">
+
+<link href="css/input-field.css" rel="stylesheet" type="text/css">
+<link href="../../css/index.css" rel="stylesheet" type="text/css">
+
+
+
+<script src="js/jquery-1.8.0.js"></script>
+<script src="js/rand_pass.js"></script>
+</head>
+<body> 
+
+
+<div id="gen_pass">
+	<div class="lr">
+		<p>所用字符<br>
+			<span class="label">
+				<label><input onClick="character(1)" name="zifu1_1" id="zifu1_1" type="checkbox" value="0123456789" checked>数字</label>
+			<label><input onClick="character(1)" name="zifu1_2" id="zifu1_2" type="checkbox" value="abcdefghijklmnopqrstuvwxyz" checked>小写字母</label>
+			<label><input onClick="character(1)" name="zifu1_3" id="zifu1_3" type="checkbox" value="ABCDEFGHIJKLMNOPQRSTUVWXYZ" checked>大写字母</label>
+			<label><input onClick="character(1)" name="zifu1_4" id="zifu1_4" type="checkbox" value="`~!@#$%^&#38;*()-_=+\|[]{};:'&#34;,.<>/?" checked>标点符号</label></span>
+			<label><input onClick="character(0)" name="zifu1_5" id="zifu1_5" type="checkbox" value="0">输入</label>
+			<textarea readonly id="text1">0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`~!@#$%^&#38;*()-_=+\|[]{};:'",.<>/?</textarea>
+			</p> 
+			<p>密码位数<input type="number" id="num" style="width:40px;border:1px solid #ccc;padding:2px;" value="16" max="99" min="4" onKeyPress="return getkey(event);">
+			<input onclick="getRanPass()" type="button" value="确定" name="button"></p>
+		<div id="mm"></div>
+	<div style="clear:both;"></div>
+</body>
+</html>
+
