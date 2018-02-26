@@ -75,7 +75,7 @@ input[type="file"]:hover {
 /** ==========================
  * Submit button
  =============================*/
-.slick-form input[type="button"] {
+.slick-form input[type="button"], #btn-genpass {
 	width: 20%;
 	height: 50px;
 	margin-top: 7px;
@@ -95,12 +95,12 @@ input[type="file"]:hover {
 	border-radius: 10px;
 }
 
-.slick-form input[type="button"]:hover {
+.slick-form input[type="button"]:hover, #btn-genpass:hover {
 	background-color: #513924;
 	border:3px solid #ff9c52;
 }
 
-.slick-form input[type="button"]:active {
+.slick-form input[type="button"]:active, #btn-genpass:active {
 	background-color: #141e1a;
 	border:3px solid #6cffe0;
 }
@@ -182,6 +182,74 @@ input[type=checkbox]+label {
 [id^=checkbox-encrypt]+label:after, [id^=checkbox-encrypt]+label:before{
 	-webkit-transition:all .1s ease-in;
 	transition:all .1s ease-in
+}
+
+/** ==========================
+ * Password Generator
+ =============================*/
+#genpass {
+	width: 90%;
+	margin:0 auto;
+}
+
+[id^=genpass-set]+label {
+	background-color:#222;
+	padding:9px;
+	border-radius:5px;
+	display:inline-block;
+	position:relative;
+	margin-right:9px;
+	width:45px;
+	box-shadow:0 0 1px rgba(0,0,0,.6);
+	height:10px
+}
+[id^=genpass-set]+label:before {
+	content:' ';
+	position:absolute;
+	background:#aaa;
+	top:-1px;
+	z-index:99999;
+	left:-1px;
+	width:21px;
+	height:30px;
+	border-radius:3px;
+	box-shadow:0 0 1px rgba(0,0,0,.6),inset 0 -18px 15px -10px rgba(0,0,0,.05)
+}
+[id^=genpass-set]+label:after {
+	content:'无';
+	position:absolute;
+	top:7px;
+	left:33px;
+	font-size:1.2em;
+	color:#ccc
+}
+[id^=genpass-set]:checked+label:after {
+	content:'有';
+	left:8px;
+	color:#0cc
+}
+[id^=genpass-set]:checked+label:before {
+	content:' ';
+	position:absolute;
+	z-index:99999;
+	left:44px
+}
+[id^=genpass-set]+label:before {
+	width:21px;
+	height:24px;
+	top:2px;
+	left:2px
+}
+[id^=genpass-set]:checked+label:before {
+	left:40px
+}
+[id^=genpass-set]+label:after, [id^=genpass-set]+label:before{
+	-webkit-transition:all .1s ease-in;
+	transition:all .1s ease-in
+}
+#text-genpass {
+	margin-left: 18%;
+	margin-top: 10px;
 }
 
 /** ==========================

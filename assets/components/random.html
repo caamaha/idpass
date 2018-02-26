@@ -1,0 +1,21 @@
+<div id="genpass">
+	<div class="checkbox-holder">
+		<input type="checkbox" onClick="CharSet(1)" id="genpass-set1" name="genpass-set1" value="0123456789" checked><label for="genpass-set1"></label>
+	</div><span>数&nbsp&nbsp&nbsp&nbsp字&nbsp&nbsp&nbsp&nbsp</span>
+	<div class="checkbox-holder">
+		<input type="checkbox" onClick="CharSet(1)" id="genpass-set2" name="genpass-set2" value="abcdefghijklmnopqrstuvwxyz" checked><label for="genpass-set2"></label>
+	</div><span>小写字母</span>
+	<div class="checkbox-holder">
+		<input type="checkbox" onClick="CharSet(1)" id="genpass-set3" name="genpass-set3" value="ABCDEFGHIJKLMNOPQRSTUVWXYZ" checked><label for="genpass-set3"></label>
+	</div><span>大写字母</span><br>
+	<div class="checkbox-holder">
+		<input type="checkbox" onClick="CharSet(1)" id="genpass-set4" name="genpass-set4" value="`~!@#$%^&#38;*()-_=+\|[]{};:'&#34;,.<>/?"><label for="genpass-set4"></label>
+	</div><span>标点符号</span>
+	<div class="checkbox-holder">
+		<input type="checkbox" onClick="CharSet(0)" id="genpass-set5" name="genpass-set5" value="0"><label for="genpass-set5"></label>
+	</div><span>自定义</span><br>
+	所用字符<textarea rows="3" cols="30" readonly id="genpass-set">0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</textarea>
+	密码位数<input type="number" id="num" style="width:50px;border:1px solid #ccc;padding:2px;" value="16" max="256" min="4"><br>
+	<input onclick="getRanPass()" type="button" value="生成密码" id="btn-genpass">
+	<div id="text-genpass">&nbsp</div><br>
+</div>

@@ -22,6 +22,7 @@
 <script src="js/jsbn/rsa.js"></script>
 <script src="js/jsbn/rsa2.js"></script>
 <script src="js/crypto/rollups/aes.js"></script>
+<script src="js/rand_pass.js"></script>
 <script>
 //判断是否需要重新登陆
 if(sessionStorage.getItem('aes_key_valid') != 1)
@@ -362,6 +363,7 @@ else if($_GET['type'] == "new")
 {
 	//显示新建记录页面
 	echo "<script>form_items=4;</script>";
+	include("assets/components/random.html");
 	include("assets/components/new_record.html");
 }
 elseif($_GET['type'] == "show")
@@ -373,6 +375,7 @@ elseif($_GET['type'] == "edit")
 {
 	//编辑记录
 	require_once("edit.php");
+	include("assets/components/random.html");
 	EditRecord($_SESSION['user_id'], rsa_decrypt($rsa_decrypt, urldecode($_GET['name'])));
 }
 elseif($_GET['type'] == "deleterecord")
